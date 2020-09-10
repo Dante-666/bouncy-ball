@@ -3,6 +3,12 @@
 // Edit the scene parsing in Scene.cpp.
 {
     name = "Level",
+
+    models = {
+	playerModel = ArticulatedModel::Specification {
+	    filename = "models/ball.obj";
+	}
+    };
    
     /*models = {
         buildingModel = ArticulatedModel::Specification { 
@@ -48,10 +54,10 @@
         }; 
 
 
-        /*player = VisibleEntity {
+        player = VisibleEntity {
             model = "playerModel";
-            frame = Point3(-13.3, 20, -12.2 ); 
-        };*/
+            frame = Point3(0, 0, 0); 
+        };
         
 
         /*building = VisibleEntity { 
@@ -61,7 +67,7 @@
         };*/
 
         camera = Camera {
-            frame = CFrame::fromXYZYPRDegrees(  -13.3, 1, -11.2, 0, 0, 0 );
+            frame = CFrame::fromXYZYPRDegrees(  10, 0, 0, 0, 0, 0 );
         
             depthOfFieldSettings = DepthOfFieldSettings {
                 model = "ARTIST";
