@@ -1,18 +1,19 @@
 #include "bball.h"
 
 int main(int argc, const char *argv[]) {
-    initGLG3D();
+    G3D::initGLG3D();
 
-    GApp::Settings settings(argc, argv);
+    G3D::GApp::Settings settings(argc, argv);
 
     settings.window.caption = "BouncyBall-G3D";
     settings.window.width = 800;
     settings.window.height = 600;
     settings.dataDir = "../data-files";
 
-    return BallApp(settings).run();
+    return G3D::BallApp(settings).run();
 }
 
+namespace G3D{
 BallApp::BallApp(const GApp::Settings &settings) : GApp(settings) {}
 
 void BallApp::onInit() {
@@ -34,9 +35,10 @@ void BallApp::onInit() {
     // developerWindow->videoRecordDialog->setScreenShotFormat("PNG");
     // developerWindow->videoRecordDialog->setCaptureGui(false);
 
-    m_scene = Scene::create(m_ambientOcclusion);
+    m_scene = PhysicsScene::create(m_ambientOcclusion);
+    //m_scene = Scene::create(m_ambientOcclusion);
     // Allowing custom Entity subclasses to be parsed from .Scene.Any files
-    //m_scene->registerEntitySubclass("PlayerEntity", &PlayerEntity::create);
+    m_scene->registerEntitySubclass("RigidEntity", &RigidEntity::create);
     setScene(m_scene);
 
     makeGUI();
@@ -95,3 +97,4 @@ void BallApp::onPose(Array<shared_ptr<Surface>> &posed3D,
     screenPrintf("Space to jump");
     screenPrintf("Of course none of it is gonna work now!!!");
 }
+} // namespace G3D

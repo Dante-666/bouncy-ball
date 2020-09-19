@@ -13,20 +13,6 @@
 	};
     };
    
-    /*models = {
-        buildingModel = ArticulatedModel::Specification { 
-            filename = "model/atcs/atcs.pk3/maps/atcs.bsp"; 
-
-            // Quake models tend to be missing backfaces when viewed from "outside" the map, which causes shadow casting problems
-            preprocess = (setTwoSided(all(), true););
-        }; 
-        playerModel = MD3Model::Specification { 
-            defaultSkin = MD3Model::Skin("md3/crusader/models/players/Crusader/lower_default.skin", "md3/crusader/models/players/Crusader/upper_default.skin", "md3/crusader/models/players/Crusader/head_default.skin"); 
-            directory = "md3/crusader/models/players/Crusader/"; 
-        }; 
-       
-    };*/
-    
     lightingEnvironment = LightingEnvironment {
         environmentMap = Texture::Specification {
             filename = "cubemap/hipshot_m9_sky/16_*.png";
@@ -65,12 +51,17 @@
 
         ground = VisibleEntity { 
             model = "groundModel";
-            frame = Point3(0, 0, 0 );
+            frame = Point3(0, 0, 0);
             canChange = false
         };
 
+	rigid = RigidEntity {
+	    model = "playerModel";
+	    frame = Point3(2, 15, 0);
+	};
+
         camera = Camera {
-            frame = CFrame::fromXYZYPRDegrees(  0, 10, 0, 0, -90, 0 );
+            frame = CFrame::fromXYZYPRDegrees(0, 10, 20, 0, -25, 0 );
         
             depthOfFieldSettings = DepthOfFieldSettings {
                 model = "ARTIST";
