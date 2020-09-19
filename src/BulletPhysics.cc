@@ -20,8 +20,8 @@ BulletPhysics::BulletPhysics()
           m_collisionDispatcher, m_broadPhase, m_solver, m_collisionConfig)) {
     // Initialize gravity
     m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
-    //add a couple of objects here to see how the simulation runs
 
+    // TODO: remove this ground shape and add one from G3D itself
     btCollisionShape *groundShape =
         new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
 
@@ -50,30 +50,6 @@ BulletPhysics::BulletPhysics()
 
     // add the body to the dynamics world
     m_dynamicsWorld->addRigidBody(body);
-
-    btCollisionShape *colShape = new btSphereShape(btScalar(1.));
-    m_collisionShapes.push_back(colShape);
-
-    /// Create Dynamic Objects
-    btTransform startTransform;
-    startTransform.setIdentity();
-
-    mass = 1.f;
-
-    localInertia = btVector3(0, 0, 0);
-    colShape->calculateLocalInertia(mass, localInertia);
-
-    startTransform.setOrigin(btVector3(2, 15, 0));
-
-    // using motionstate is recommended, it provides interpolation capabilities,
-    // and only synchronizes 'active' objects
-    btDefaultMotionState *myMotionState2 =
-        new btDefaultMotionState(startTransform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo2(mass, myMotionState2,
-                                                     colShape, localInertia);
-    btRigidBody *body2 = new btRigidBody(rbInfo2);
-
-    m_dynamicsWorld->addRigidBody(body2);
 }
 
 BulletPhysics::~BulletPhysics() {
@@ -86,31 +62,107 @@ BulletPhysics::~BulletPhysics() {
 }
 
 void BulletPhysics::insertRigidEntity(G3D::RigidEntity *entity) {
-}
+    debugAssertM(
+        entity->canCauseCollisions(),
+        "Attempt to include a RigidEntity which cannot cause collisions");
 
-    
-G3D::CoordinateFrame BulletPhysics::getFrame(G3D::VisibleEntity *entity) {
+    G3D::String collisionShape = entity->getCollisionShape();
+    btCollisionShape *colShape;
+    if (collisionShape == "Sphere") {
+        // TODO: remove the G3D shapes as they do a lot more and require
+        // extra computation load while addition but the structure is still okay
+        shared_ptr<G3D::SphereShape> shape =
+            dynamic_pointer_cast<G3D::SphereShape>(entity->getShape());
+        float area = shape->area();
+        btScalar radius = sqrt(area / (4 * M_PI));
 
-    auto rba= m_dynamicsWorld->getCollisionObjectArray();
-    auto rb = btRigidBody::upcast(rba[1]);
-    //did this guy die?
-    btTransform trans;
-    rb->getMotionState()->getWorldTransform(trans);
-
-    G3D::Vector3 rows[3];
-    //const btVector3 bcols[3];
-    btMatrix3x3 bBasis = trans.getBasis();
-    for(int i = 0; i < 3; i++) {
-        const auto brow = bBasis[i];
-        rows[i] = G3D::Vector3(brow.x(), brow.y(), brow.z());
+        colShape = new btSphereShape(radius);
+        // TODO: is this needed?
+        m_collisionShapes.push_back(colShape);
     }
 
-    G3D::Matrix3 rotation = G3D::Matrix3::fromRows(rows[0], rows[1], rows[2]);
-    btVector3 bOrigin = trans.getOrigin();
-    G3D::Point3 translation(bOrigin.x(), bOrigin.y(), bOrigin.z());
+    // Create Dynamic Objects
+    btTransform startTransform = convertFromG3D(entity->frame());
+    btScalar mass = entity->mass();
 
-    return G3D::CoordinateFrame(rotation, translation);
+    // TODO: read from Any file as well
+    btVector3 localInertia = btVector3(0, 0, 0);
+    colShape->calculateLocalInertia(mass, localInertia);
+
+    // using motionstate is recommended, it provides interpolation capabilities,
+    // and only synchronizes 'active' objects
+    btDefaultMotionState *motionState =
+        new btDefaultMotionState(startTransform);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, colShape,
+                                                    localInertia);
+    btRigidBody *body = new btRigidBody(rbInfo);
+
+    m_dynamicsWorld->addRigidBody(body);
+    
+    //Add this data to the map
+    m_render2physicsMap.insert(std::pair(entity, body));
 }
+
+void BulletPhysics::removeRigidEntity(G3D::RigidEntity *entity) {
+    auto iter = m_render2physicsMap.find(entity);
+    debugAssertM(iter != m_render2physicsMap.end(),
+                 "Entity to be removed is not present in the map");
+    m_render2physicsMap.erase(iter);
+    // TODO: more stuff for removing the entity from the dynamics world also to
+    // be performed here
+}
+
+G3D::CoordinateFrame BulletPhysics::getFrame(G3D::VisibleEntity *entity) {
+    auto iter = m_render2physicsMap.find(entity);
+    debugAssertM(iter != m_render2physicsMap.end(),
+                 "Queried entity is not present in the map");
+    auto collisionObject = iter->second;
+    btRigidBody *rigidBody = btRigidBody::upcast(collisionObject);
+
+    btTransform trans;
+    if (rigidBody && rigidBody->getMotionState()) {
+        rigidBody->getMotionState()->getWorldTransform(trans);
+    } else {
+        trans = collisionObject->getWorldTransform();
+    }
+
+    return convertToG3D(trans);
+}
+
 void BulletPhysics::simulate(float deltaTime) {
     m_dynamicsWorld->stepSimulation(deltaTime);
+}
+
+G3D::CoordinateFrame BulletPhysics::convertToG3D(const btTransform transform) {
+    G3D::Matrix3 rotation = convertToG3D(transform.getBasis());
+    G3D::Point3 translation = convertToG3D(transform.getOrigin());
+    return G3D::CoordinateFrame(rotation, translation);
+}
+
+G3D::Matrix3 BulletPhysics::convertToG3D(const btMatrix3x3 matrix) {
+    G3D::Vector3 rows[3];
+    for (int i = 0; i < 3; i++) {
+        rows[i] = convertToG3D(matrix[i]);
+    }
+    return G3D::Matrix3::fromRows(rows[0], rows[1], rows[2]);
+}
+
+G3D::Point3 BulletPhysics::convertToG3D(const btVector3 vector) {
+    return G3D::Point3(vector.x(), vector.y(), vector.z());
+}
+
+btTransform BulletPhysics::convertFromG3D(const G3D::CoordinateFrame frame) {
+    btMatrix3x3 basis = convertFromG3D(frame.rotation);
+    btVector3 origin = convertFromG3D(frame.translation);
+    return btTransform(basis, origin);
+}
+btMatrix3x3 BulletPhysics::convertFromG3D(const G3D::Matrix3 matrix) {
+    btVector3 rows[3];
+    for (int i = 0; i < 3; i++) {
+        rows[i] = convertFromG3D(matrix.row(i));
+    }
+    return btMatrix3x3(rows[0], rows[1], rows[2]);
+}
+btVector3 BulletPhysics::convertFromG3D(const G3D::Vector3 vector) {
+    return btVector3(vector.x, vector.y, vector.z); 
 }

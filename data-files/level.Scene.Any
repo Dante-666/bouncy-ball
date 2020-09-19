@@ -42,12 +42,20 @@
             type = "SPOT"; 
         }; 
 
-
         player = VisibleEntity {
             model = "playerModel";
             frame = Point3(0, 2, 0); 
         };
-        
+
+	rigid = RigidEntity {
+	    model = "playerModel";
+	    frame = CFrame::fromXYZYPRDegrees(2, 15, 0, 0, 0, 0);
+	    mass = 1.0;
+	    physicalSimulation = true;
+	    canCauseCollisions = true;
+	    collisionShape = "Sphere";
+	    shape = Sphere(1.0);
+	};
 
         ground = VisibleEntity { 
             model = "groundModel";
@@ -55,13 +63,8 @@
             canChange = false
         };
 
-	rigid = RigidEntity {
-	    model = "playerModel";
-	    frame = Point3(2, 15, 0);
-	};
-
         camera = Camera {
-            frame = CFrame::fromXYZYPRDegrees(0, 10, 20, 0, -25, 0 );
+            frame = CFrame::fromXYZYPRDegrees(0, 10, 20, 0, -25, 0);
         
             depthOfFieldSettings = DepthOfFieldSettings {
                 model = "ARTIST";
@@ -81,5 +84,5 @@
             }
         };
     };
-        
+
 }

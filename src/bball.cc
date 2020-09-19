@@ -6,8 +6,8 @@ int main(int argc, const char *argv[]) {
     G3D::GApp::Settings settings(argc, argv);
 
     settings.window.caption = "BouncyBall-G3D";
-    settings.window.width = 800;
-    settings.window.height = 600;
+    settings.window.width = 1920;
+    settings.window.height = 1080;
     settings.dataDir = "../data-files";
 
     return G3D::BallApp(settings).run();

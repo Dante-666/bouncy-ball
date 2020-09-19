@@ -10,6 +10,10 @@
 
 #pragma once
 
+#include <map>
+
+#include "G3D-base/Matrix3x4.h"
+#include "G3D-base/Vector3.h"
 #include "btBulletDynamicsCommon.h"
 #include "PurePhysics.h"
 
@@ -31,15 +35,15 @@ class BulletPhysics : PurePhysics {
     btDiscreteDynamicsWorld *m_dynamicsWorld;
 
     btAlignedObjectArray<btCollisionShape *> m_collisionShapes;
-    // TODO: check if the order of these objects is maintained in all scenarios,
-    // then a simple counter and a map can be used to keep track of the shapes
-    // which were added here for faster query.
+    // TODO: seems to be but it's always better to keep a map of these entries 
     // TODO: do we actually need to store this? we definetly need a pointer to
     // store the btCollisionObject array which is obtained from the dynamicsWorld
     // TODO: How to handle the lifecycle management? Suppose a scenario in which
     // the RigidEntity is not visible anymore, then we don't need to simulate that
     // or if it goes out of scope, then also the simulation needs to be filtered
     // for collision detection only between relevant objects
+    // A map might be the best option to update and track entities which were added
+    std::map<G3D::VisibleEntity*, btCollisionObject*> m_render2physicsMap;
 
 public:
     // TODO: remove objects created for testing
@@ -56,10 +60,19 @@ public:
     BulletPhysics &&operator=(BulletPhysics &&) = delete;
 
     virtual void insertRigidEntity(G3D::RigidEntity *entity) override;
+
+    virtual void removeRigidEntity(G3D::RigidEntity *entity) override;
+
     virtual G3D::CoordinateFrame getFrame(G3D::VisibleEntity *entity) override;
 
-    // TODO:This method has to be overriden apart from a few custom methods which
-    // will interface the objects between this world and G3D world. That would
-    // require some major hard work and design challenges
     virtual void simulate(float deltaTime) override;
+
+    // Helper functions for easy conversion of data
+    G3D::CoordinateFrame convertToG3D(const btTransform transform);
+    G3D::Matrix3 convertToG3D(const btMatrix3x3 matrix);
+    G3D::Point3 convertToG3D(const btVector3 vector);
+
+    btTransform convertFromG3D(const G3D::CoordinateFrame frame);
+    btMatrix3x3 convertFromG3D(const G3D::Matrix3 matrix);
+    btVector3 convertFromG3D(const G3D::Vector3 vector);
 };

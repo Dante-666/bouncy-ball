@@ -10,6 +10,7 @@
 
 #pragma once
 
+
 #include <G3D-base/G3D-base.h>
 #include <G3D-gfx/G3D-gfx.h>
 #include <G3D-app/G3D-app.h>
@@ -29,7 +30,10 @@
 
 namespace G3D {
 class PhysicsScene : public Scene {
-    unique_ptr<BulletPhysics> m_physics;
+    //TODO: make the conversion from using concrtete type to abstract type
+    shared_ptr<BulletPhysics> m_physics;
+    float m_sec = 0.f;
+    size_t numSphere = 1;
 
 protected:
     PhysicsScene(const shared_ptr<AmbientOcclusion> &ao);
@@ -39,46 +43,22 @@ public:
     create(const shared_ptr<AmbientOcclusion> &ao);
     /** This should be overriden to support the physics entities, models don't
      * have to be since they are quite independent from the entity themselves
-     * TODO: maybe not
-     *
+     */
     virtual shared_ptr<Entity>
-    insert(const shared_ptr<Entity> &entity) override;*/
-
-    /** We need to override this because of the way custom Physics objects are
-     * being handled right now. Keep a separate array for the Physics objects
-     * and update their Pose based on the simulation results obtained from the
-     * underlying physics layer
-     * TODO: may not need to do this/
-    virtual shared_ptr<Entity> createEntity(
-        const String &name, const Any &any,
-        const Scene::LoadOptions &options = Scene::LoadOptions()) override;
-
-    virtual shared_ptr<Entity> createEntity(
-        const String &entityType, const String &name, const Any &any,
-        const Scene::LoadOptions &options = Scene::LoadOptions()) override;*/
+    insert(const shared_ptr<Entity> &entity) override;
 
     /** Remove all original Scene objects alone with the custom Physics objects
      */
     virtual void clear() override;
 
-    /** Because of custom objects in the scene, we need to override this method
-     */
-    // TODO:Disbale for now
-    /*virtual Any load(const String &sceneName,
-                     const LoadOptions &loadOptions = LoadOptions()) override;*/
-
-    // TODO: there is a lot of dependency on the m_entityArray so we need to
-    // override more methods which are seeming unreasonable for the design now
-    // let's avoid doing all of that and use the original array itself but
-    // handle the physics animation in the Entity's onSimulation method.
-    // TODO: for simple objects, this seems okay and fine but how do we do this
-    // for complicated types like character animations? that's a problem for
-    // later stage I believe
     /** This is the crux method which needs to be run, using both the existing
      * simple animations and the Physics based natural animation may be needed
      * in a few instances, so best idea would be to use both. Either case, run
      * the external Physics engine simulation in this method.
      */
     virtual void onSimulation(SimTime deltaTime) override;
+
+    shared_ptr<BulletPhysics> getPhysicsEngine();
+
 };
 } // namespace G3D

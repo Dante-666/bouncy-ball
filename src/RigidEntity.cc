@@ -9,13 +9,17 @@
  */
 
 #include "RigidEntity.h"
+#include "PhysicsScene.h"
+#include <memory>
 
 namespace G3D {
 RigidEntity::RigidEntity() : VisibleEntity(){};
 
 void RigidEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
-    debugAssertM(true, "inside onSimulation");
-    // Idea is to do some simulation business here
+    PhysicsScene* physicsScene = dynamic_cast<PhysicsScene*>(m_scene);
+    if(physicsScene) {
+	updateFrame(physicsScene->getPhysicsEngine()->getFrame(this));
+    }
 }
 
 void RigidEntity::updateFrame(CoordinateFrame frame) {
@@ -73,22 +77,29 @@ shared_ptr<Entity> RigidEntity::create(const String &name, Scene *scene,
 }
 
 void RigidEntity::init(AnyTableReader &propertyTable) {
-    /*Vector3 v;
-    propertyTable.getIfPresent("velocity", v);
-    Sphere s(1.5f);
-    propertyTable.getIfPresent("collisionSphere", s);*/
-
-    init();
+    String collisionShape = "Sphere";
+    propertyTable.getIfPresent("collisionShape", collisionShape);
+    m_collisionShape = "Sphere";
+    if (m_collisionShape == "Sphere") {
+	Sphere sphere;
+	propertyTable.getIfPresent("shape", sphere);
+	m_shape = createShared<SphereShape>(sphere);
+    } else if (m_collisionShape == "Mesh") {
+	//TODO: this needs to be handled a bit more properly
+    } else {
+	debugAssertM(false, "Unknown collisionShape parameter was passed");
+    }
 }
 
-void RigidEntity::init() {
-    /*
-    m_velocity = velocity;
-    m_collisionProxySphere = collisionProxy;
-    m_desiredOSVelocity     = Vector3::zero();
-    m_desiredYawVelocity    = 0;
-    m_desiredPitchVelocity  = 0;
-    m_heading               = 0;
-    m_headTilt              = 0;*/
+void RigidEntity::init(String collisionShape) {
+    m_collisionShape = collisionShape;
+    //Construct a default sphere for now
+    Sphere sphere(1.0);
+    m_shape = createShared<SphereShape>(sphere);
 }
+
+String RigidEntity::getCollisionShape() { return m_collisionShape; }
+
+shared_ptr<Shape> RigidEntity::getShape() { return m_shape; }
+
 } // namespace G3D

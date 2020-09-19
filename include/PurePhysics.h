@@ -13,7 +13,6 @@
 #include <G3D-gfx/G3D-gfx.h>
 #include <G3D-app/G3D-app.h>
 
-//#include <G3D/G3D.h>
 #include "RigidEntity.h"
 
 /** \brief Physics Abstraction Layer
@@ -45,6 +44,7 @@ public:
      * supposed to be a bit faster
      */
     virtual void insertRigidEntity(G3D::RigidEntity *entity) = 0;
+    virtual void removeRigidEntity(G3D::RigidEntity *entity) = 0;
 
     /** Extract the CoordinateFrame information from whatever RT datatypes the
      * underlying physics engine supports so that G3D can make the corresponding

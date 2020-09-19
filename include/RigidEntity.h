@@ -21,11 +21,16 @@
 
 namespace G3D {
 class RigidEntity : public VisibleEntity {
+protected:
+    String m_collisionShape;
+    shared_ptr<Shape> m_shape;
+
 public:
     RigidEntity();
 
     // TODO: update the pose of object here by querying the physics engine
     virtual void onSimulation(SimTime absoluteTime, SimTime deltaTime) override;
+    // TODO: should remove this
     void updateFrame(CoordinateFrame frame);
 
     /** For deserialization from Any / loading from file */
@@ -41,6 +46,11 @@ public:
 
     void init(AnyTableReader &propertyTable);
 
-    void init();
+    //TODO: add more default shapes and sizes
+    void init(String collisionShape = "Sphere");
+
+    String getCollisionShape();
+
+    shared_ptr<Shape> getShape();
 };
 } // namespace G3D
