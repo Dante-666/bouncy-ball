@@ -11,6 +11,13 @@
 	groundModel = ArticulatedModel::Specification {
 	    filename = "models/floor.obj";
 	};
+	curveGroundModel = ArticulatedModel::Specification {
+	    filename = "models/bowl.obj";
+
+	    preprocess = {
+		setTwoSided("Bowl_Sphere_ground/ground", true);
+	    };
+	};
     };
    
     lightingEnvironment = LightingEnvironment {
@@ -51,16 +58,16 @@
 	    model = "playerModel";
 	    frame = CFrame::fromXYZYPRDegrees(2, 15, 0, 0, 0, 0);
 	    mass = 1.0;
-	    physicalSimulation = true;
-	    canCauseCollisions = true;
-	    collisionShape = "Sphere";
+	    collisionShape = "SPHERE";
 	    shape = Sphere(1.0);
 	};
 
-        ground = VisibleEntity { 
-            model = "groundModel";
-            frame = Point3(0, 0, 0);
-            canChange = false
+        ground = RigidEntity { 
+            model = "curveGroundModel";
+            frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, 0, 0);
+	    mass = 0.0;
+            canChange = false;
+	    collisionShape = "MESH";
         };
 
         camera = Camera {

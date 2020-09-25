@@ -11,9 +11,12 @@
 #pragma once
 
 #include <map>
+#include <set>
 
 #include "G3D-base/Matrix3x4.h"
 #include "G3D-base/Vector3.h"
+#include "bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h"
+#include "bullet/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h"
 #include "btBulletDynamicsCommon.h"
 #include "PurePhysics.h"
 
@@ -29,10 +32,11 @@ class BulletPhysics : PurePhysics {
      * Bullet works best with raw pointers so take care with this class
      */
     btCollisionConfiguration *m_collisionConfig;
-    btCollisionDispatcher *m_collisionDispatcher;
+    btDispatcher *m_collisionDispatcher;
     btBroadphaseInterface *m_broadPhase;
-    btSequentialImpulseConstraintSolver *m_solver;
-    btDiscreteDynamicsWorld *m_dynamicsWorld;
+    //btConstraintSolverPoolMt * m_solverPool;
+    btConstraintSolver *m_solver;
+    btDynamicsWorld *m_dynamicsWorld;
 
     btAlignedObjectArray<btCollisionShape *> m_collisionShapes;
     // TODO: seems to be but it's always better to keep a map of these entries 
@@ -43,7 +47,8 @@ class BulletPhysics : PurePhysics {
     // or if it goes out of scope, then also the simulation needs to be filtered
     // for collision detection only between relevant objects
     // A map might be the best option to update and track entities which were added
-    std::map<G3D::VisibleEntity*, btCollisionObject*> m_render2physicsMap;
+    std::map<G3D::VisibleEntity*, btCollisionObject*> m_dynamicBodyMap;
+    std::set<btCollisionObject*> m_staticBodySet;
 
 public:
     // TODO: remove objects created for testing

@@ -67,9 +67,7 @@ void PhysicsScene::onSimulation(SimTime deltaTime) {
             model = "playerModel";
             frame = CFrame::fromXYZYPRDegrees(2, 15, 0, 0, 0, 0);
             mass = 1.0;
-            physicalSimulation = true;
-            canCauseCollisions = true;
-            collisionShape = "Sphere";
+            collisionShape = "SPHERE";
             shape = Sphere(1.0);
         }));
         AnyTableReader propertyTable(anyDef);
