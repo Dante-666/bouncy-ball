@@ -9,6 +9,7 @@
  */
 
 #include "RigidEntity.h"
+#include "G3D-app/ArticulatedModel.h"
 #include "PhysicsScene.h"
 #include <memory>
 
@@ -16,9 +17,11 @@ namespace G3D {
 RigidEntity::RigidEntity() : VisibleEntity(){};
 
 void RigidEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
-    PhysicsScene* physicsScene = dynamic_cast<PhysicsScene*>(m_scene);
-    if(physicsScene) {
-	updateFrame(physicsScene->getPhysicsEngine()->getFrame(this));
+    if (!this->canChange())
+        return;
+    PhysicsScene *physicsScene = dynamic_cast<PhysicsScene *>(m_scene);
+    if (physicsScene) {
+        updateFrame(physicsScene->getPhysicsEngine()->getFrame(this));
     }
 }
 
@@ -77,29 +80,81 @@ shared_ptr<Entity> RigidEntity::create(const String &name, Scene *scene,
 }
 
 void RigidEntity::init(AnyTableReader &propertyTable) {
-    String collisionShape = "Sphere";
+
+    // Default expectation of this entity is to cause collisions and it is a
+    // part of physical simulation so set those parameters accordingly
+    bool c = true;
+    propertyTable.setReadStatus("canCauseCollisions", false);
+    propertyTable.getIfPresent("canCauseCollisions", c);
+    setCanCauseCollisions(c);
+
+    bool p = true;
+    propertyTable.getIfPresent("physicalSimulation", p);
+    setPhysicalSimulation(p);
+
+    String collisionShape = "SPHERE";
     propertyTable.getIfPresent("collisionShape", collisionShape);
-    m_collisionShape = "Sphere";
-    if (m_collisionShape == "Sphere") {
-	Sphere sphere;
-	propertyTable.getIfPresent("shape", sphere);
-	m_shape = createShared<SphereShape>(sphere);
-    } else if (m_collisionShape == "Mesh") {
-	//TODO: this needs to be handled a bit more properly
-    } else {
-	debugAssertM(false, "Unknown collisionShape parameter was passed");
+    m_collisionShape = getShapeTypeFromString(collisionShape);
+    switch (m_collisionShape) {
+    case Shape::Type::SPHERE: {
+        Sphere sphere;
+        propertyTable.getIfPresent("shape", sphere);
+        m_shape = createShared<SphereShape>(sphere);
+    } break;
+    case Shape::Type::MESH: {
+        // TODO: Create a MeshShape to hold the coordinates and pass this as
+        // data to the physics engine
+        const shared_ptr<ArticulatedModel> model =
+            dynamic_pointer_cast<G3D::ArticulatedModel>(this->model());
+        debugAssertM(model->meshArray().size() == 1,
+                     "Attempt to add a model with multiple Meshes");
+	ArticulatedModel::Mesh* firstMesh = model->meshArray()[0];
+        CPUVertexArray &fullVertex = firstMesh->geometry->cpuVertexArray;
+
+	Array<int> index = firstMesh->cpuIndexArray;
+        Array<Point3> vertex;
+        for (int i = 0; i < fullVertex.vertex.size(); i++) {
+            vertex.push_back(fullVertex.vertex[i].position);
+        }
+        m_shape =
+            createShared<MeshShape>(vertex, index);
+    } break;
+    default: {
+        debugAssertM(false, "Unknown collisionShape parameter was passed");
+    }
     }
 }
 
-void RigidEntity::init(String collisionShape) {
+void RigidEntity::init(Shape::Type collisionShape) {
     m_collisionShape = collisionShape;
-    //Construct a default sphere for now
-    Sphere sphere(1.0);
-    m_shape = createShared<SphereShape>(sphere);
+    switch (m_collisionShape) {
+    case Shape::Type::SPHERE: {
+        Sphere sphere(1.0);
+        m_shape = createShared<SphereShape>(sphere);
+    } break;
+    case Shape::Type::MESH: {
+        // TODO: this needs to be handled a bit more properly
+        // maybe use a MeshShape?
+    } break;
+    default: {
+        debugAssertM(false, "Unknown collisionShape parameter was passed");
+    }
+    }
 }
 
-String RigidEntity::getCollisionShape() { return m_collisionShape; }
+const Shape::Type RigidEntity::getCollisionShape() { return m_collisionShape; }
 
-shared_ptr<Shape> RigidEntity::getShape() { return m_shape; }
+const shared_ptr<Shape> RigidEntity::getShape() { return m_shape; }
+
+const Shape::Type RigidEntity::getShapeTypeFromString(const String shape) {
+    if (shape == "SPHERE") {
+        return Shape::Type::SPHERE;
+    } else if (shape == "MESH") {
+        return Shape::Type::MESH;
+    } else {
+        alwaysAssertM(false, "invalid shape provided");
+        return Shape::Type::NONE;
+    }
+}
 
 } // namespace G3D

@@ -1,4 +1,5 @@
 #include "bball.h"
+#include "G3D-base/FileSystem.h"
 
 int main(int argc, const char *argv[]) {
     G3D::initGLG3D();
@@ -8,7 +9,7 @@ int main(int argc, const char *argv[]) {
     settings.window.caption = "BouncyBall-G3D";
     settings.window.width = 1920;
     settings.window.height = 1080;
-    settings.dataDir = "../data-files";
+    settings.dataDir = G3D::FileSystem::NFDStandardizeFilename("../data-files");
 
     return G3D::BallApp(settings).run();
 }
@@ -36,7 +37,6 @@ void BallApp::onInit() {
     // developerWindow->videoRecordDialog->setCaptureGui(false);
 
     m_scene = PhysicsScene::create(m_ambientOcclusion);
-    //m_scene = Scene::create(m_ambientOcclusion);
     // Allowing custom Entity subclasses to be parsed from .Scene.Any files
     m_scene->registerEntitySubclass("RigidEntity", &RigidEntity::create);
     setScene(m_scene);

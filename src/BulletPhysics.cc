@@ -1,58 +1,33 @@
 /** Copyright 2020 Blood Eagle Studio
  *
- * You may not use, not distribute and not modify this code 
+ * You may not use, not distribute and not modify this code
  * under any manifestable possibility and if such a scenario
- * occurs, any changes to the code must be reviewed by the 
+ * occurs, any changes to the code must be reviewed by the
  * original author of this project.
  *
  *  Author : Siddharth J Singh(dante)
  */
 
 #include "BulletPhysics.h"
+#include "G3D-app/ArticulatedModel.h"
+#include "G3D-app/Shape.h"
+#include "G3D-gfx/CPUVertexArray.h"
 #include "RigidEntity.h"
 
 BulletPhysics::BulletPhysics()
     : m_collisionConfig(new btDefaultCollisionConfiguration()),
       m_collisionDispatcher(new btCollisionDispatcher(m_collisionConfig)),
       m_broadPhase(new btDbvtBroadphase()),
-      m_solver(new btSequentialImpulseConstraintSolver()),
-      m_dynamicsWorld(new btDiscreteDynamicsWorld(
-          m_collisionDispatcher, m_broadPhase, m_solver, m_collisionConfig)) {
+      m_solver(new btSequentialImpulseConstraintSolverMt()),
+      m_dynamicsWorld(new btDiscreteDynamicsWorldMt(
+          m_collisionDispatcher, m_broadPhase, nullptr, m_solver, m_collisionConfig)) {
     // Initialize gravity
     m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
-
-    // TODO: remove this ground shape and add one from G3D itself
-    btCollisionShape *groundShape =
-        new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
-
-    m_collisionShapes.push_back(groundShape);
-
-    btTransform groundTransform;
-    groundTransform.setIdentity();
-    groundTransform.setOrigin(btVector3(0, -50, 0));
-
-    btScalar mass(0.);
-
-    // rigidbody is dynamic if and only if mass is non zero, otherwise static
-    bool isDynamic = (mass != 0.f);
-
-    btVector3 localInertia(0, 0, 0);
-    if (isDynamic)
-        groundShape->calculateLocalInertia(mass, localInertia);
-
-    // using motionstate is optional, it provides interpolation capabilities,
-    // and only synchronizes 'active' objects
-    btDefaultMotionState *myMotionState =
-        new btDefaultMotionState(groundTransform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState,
-                                                    groundShape, localInertia);
-    btRigidBody *body = new btRigidBody(rbInfo);
-
-    // add the body to the dynamics world
-    m_dynamicsWorld->addRigidBody(body);
 }
 
 BulletPhysics::~BulletPhysics() {
+    m_staticBodySet.clear();
+    m_dynamicBodyMap.clear();
     m_collisionShapes.clear();
     delete m_dynamicsWorld;
     delete m_solver;
@@ -66,31 +41,58 @@ void BulletPhysics::insertRigidEntity(G3D::RigidEntity *entity) {
         entity->canCauseCollisions(),
         "Attempt to include a RigidEntity which cannot cause collisions");
 
-    G3D::String collisionShape = entity->getCollisionShape();
+    G3D::Shape::Type collisionShape = entity->getCollisionShape();
     btCollisionShape *colShape;
-    if (collisionShape == "Sphere") {
-        // TODO: remove the G3D shapes as they do a lot more and require
-        // extra computation load while addition but the structure is still okay
+    // TODO: break this down into a separate function
+    switch (collisionShape) {
+    case G3D::Shape::Type::SPHERE: {
         shared_ptr<G3D::SphereShape> shape =
             dynamic_pointer_cast<G3D::SphereShape>(entity->getShape());
         float area = shape->area();
         btScalar radius = sqrt(area / (4 * M_PI));
 
         colShape = new btSphereShape(radius);
-        // TODO: is this needed?
-        m_collisionShapes.push_back(colShape);
+    } break;
+    case G3D::Shape::Type::MESH: {
+        shared_ptr<G3D::MeshShape> shape =
+            dynamic_pointer_cast<G3D::MeshShape>(entity->getShape());
+
+        btIndexedMesh *mesh = new btIndexedMesh();
+        mesh->m_numTriangles = shape->indexArray().size() / 3;
+        mesh->m_triangleIndexBase =
+            (const unsigned char *)shape->indexArray().getCArray();
+        mesh->m_triangleIndexStride = 3 * 4;
+        mesh->m_numVertices = shape->vertexArray().size();
+        mesh->m_vertexBase =
+            (const unsigned char *)shape->vertexArray().getCArray();
+        mesh->m_vertexStride = 3 * 4;
+
+        btTriangleIndexVertexArray *vertexArray =
+            new btTriangleIndexVertexArray();
+        vertexArray->addIndexedMesh(*mesh);
+        colShape = new btBvhTriangleMeshShape(vertexArray, false);
+    } break;
+    default:
+        debugAssertM(false, "Type not implemented yet");
     }
+
+    // TODO: is this needed?
+    m_collisionShapes.push_back(colShape);
 
     // Create Dynamic Objects
     btTransform startTransform = convertFromG3D(entity->frame());
     btScalar mass = entity->mass();
 
+    // rigidbody is dynamic if and only if mass is non zero, otherwise static
+    bool isDynamic = (mass != 0.f) || entity->canChange();
+
     // TODO: read from Any file as well
     btVector3 localInertia = btVector3(0, 0, 0);
-    colShape->calculateLocalInertia(mass, localInertia);
+    if (isDynamic)
+        colShape->calculateLocalInertia(mass, localInertia);
 
-    // using motionstate is recommended, it provides interpolation capabilities,
-    // and only synchronizes 'active' objects
+    // using motionstate is recommended, it provides interpolation
+    // capabilities, and only synchronizes 'active' objects
     btDefaultMotionState *motionState =
         new btDefaultMotionState(startTransform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, colShape,
@@ -98,23 +100,26 @@ void BulletPhysics::insertRigidEntity(G3D::RigidEntity *entity) {
     btRigidBody *body = new btRigidBody(rbInfo);
 
     m_dynamicsWorld->addRigidBody(body);
-    
-    //Add this data to the map
-    m_render2physicsMap.insert(std::pair(entity, body));
+
+    if (isDynamic) {
+        m_dynamicBodyMap.insert(std::pair(entity, body));
+    } else {
+        m_staticBodySet.insert(body);
+    }
 }
 
 void BulletPhysics::removeRigidEntity(G3D::RigidEntity *entity) {
-    auto iter = m_render2physicsMap.find(entity);
-    debugAssertM(iter != m_render2physicsMap.end(),
+    auto iter = m_dynamicBodyMap.find(entity);
+    debugAssertM(iter != m_dynamicBodyMap.end(),
                  "Entity to be removed is not present in the map");
-    m_render2physicsMap.erase(iter);
-    // TODO: more stuff for removing the entity from the dynamics world also to
-    // be performed here
+    m_dynamicBodyMap.erase(iter);
+    // TODO: more stuff for removing the entity from the dynamics world also
+    // to be performed here
 }
 
 G3D::CoordinateFrame BulletPhysics::getFrame(G3D::VisibleEntity *entity) {
-    auto iter = m_render2physicsMap.find(entity);
-    debugAssertM(iter != m_render2physicsMap.end(),
+    auto iter = m_dynamicBodyMap.find(entity);
+    debugAssertM(iter != m_dynamicBodyMap.end(),
                  "Queried entity is not present in the map");
     auto collisionObject = iter->second;
     btRigidBody *rigidBody = btRigidBody::upcast(collisionObject);
@@ -164,5 +169,5 @@ btMatrix3x3 BulletPhysics::convertFromG3D(const G3D::Matrix3 matrix) {
     return btMatrix3x3(rows[0], rows[1], rows[2]);
 }
 btVector3 BulletPhysics::convertFromG3D(const G3D::Vector3 vector) {
-    return btVector3(vector.x, vector.y, vector.z); 
+    return btVector3(vector.x, vector.y, vector.z);
 }

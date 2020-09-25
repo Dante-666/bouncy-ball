@@ -22,7 +22,7 @@
 namespace G3D {
 class RigidEntity : public VisibleEntity {
 protected:
-    String m_collisionShape;
+    Shape::Type m_collisionShape;
     shared_ptr<Shape> m_shape;
 
 public:
@@ -47,10 +47,12 @@ public:
     void init(AnyTableReader &propertyTable);
 
     //TODO: add more default shapes and sizes
-    void init(String collisionShape = "Sphere");
+    void init(Shape::Type collisionShape = Shape::Type::SPHERE);
 
-    String getCollisionShape();
+    const Shape::Type getCollisionShape();
 
-    shared_ptr<Shape> getShape();
+    const shared_ptr<Shape> getShape();
+
+    const Shape::Type getShapeTypeFromString(const String shape);
 };
 } // namespace G3D
