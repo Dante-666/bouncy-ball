@@ -13,6 +13,7 @@
 #include <G3D-gfx/G3D-gfx.h>
 #include <G3D-app/G3D-app.h>
 
+#include "G3D-app/VisibleEntity.h"
 #include "RigidEntity.h"
 
 /** \brief Physics Abstraction Layer
@@ -53,6 +54,9 @@ public:
      * object.
      */
     virtual G3D::CoordinateFrame getFrame(G3D::VisibleEntity *entity) = 0;
+
+    /** Apply a force to the object */
+    virtual void applyForce(G3D::VisibleEntity *entity, G3D::Point3 force) = 0;
 
     /** Override this method in the implementation to update the underlying
      * physics world

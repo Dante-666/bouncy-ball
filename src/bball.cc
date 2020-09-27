@@ -14,7 +14,39 @@ int main(int argc, const char *argv[]) {
     return G3D::BallApp(settings).run();
 }
 
-namespace G3D{
+namespace G3D {
+const CFrame
+BallApp::computePlayerMotionFrame(const shared_ptr<VisibleEntity> player) {
+
+    /** The y-coordinate of both these points are more or less the same for
+     * normal motion except when they jump */
+    Point3 previousPos = player->previousFrame().translation;
+    Point3 currentPos = player->frame().translation;
+
+    Point3 diff = currentPos - previousPos;
+    Point2 diffXZ(diff.x, diff.z);
+    /** We only care if the position of the ball has changed at all in the XZ
+     * space and only compute a frame when we see a non-zero difference,
+     * otherwise return the previously updated frame */
+    if (diffXZ.length() > 0.01) {
+        Point2 dirXZ = diffXZ.fastDirection();
+        float yaw = -acos(dirXZ.x);
+        /** If the z-value is negative, then invert the angle since dot product
+         * is not good enough for this */
+        if (dirXZ.y < 0)
+            yaw *= -1;
+
+        /** Assiging current Position should also take care of the jumping
+         * issues */
+        m_scene->m_playerMotion = CFrame::fromXYZYPRRadians(
+            currentPos.x, currentPos.y, currentPos.z, yaw, 0, 0);
+        m_isPlayerMoving = true;
+    } else {
+        m_isPlayerMoving = false;
+    }
+    return m_scene->m_playerMotion;
+}
+
 BallApp::BallApp(const GApp::Settings &settings) : GApp(settings) {}
 
 void BallApp::onInit() {
@@ -48,6 +80,7 @@ void BallApp::onInit() {
     loadScene("Level");
     setActiveCamera(m_scene->typedEntity<Camera>("camera"));
     developerWindow->sceneEditorWindow->setPreventEntitySelect(true);
+    developerWindow->setVisible(false);
 }
 
 void BallApp::makeGUI() {
@@ -82,8 +115,41 @@ void BallApp::onUserInput(UserInput *ui) {
     GApp::onUserInput(ui);
     ui->setPureDeltaMouse(!m_debugCam);
     if (!m_debugCam) {
-        // TODO: sid : Implement motion code here
-        // take inspiration from samples
+        shared_ptr<VisibleEntity> player = m_scene->getPlayer();
+        const shared_ptr<Camera> camera = m_scene->defaultCamera();
+
+        /** Use this motionFrame object to compute the force required in world
+         * space */
+        CFrame motionFrame = computePlayerMotionFrame(player);
+        Point3 forwardForce = motionFrame.vectorToWorldSpace(Point3(2.5, 0, 0));
+        Point3 backwardForce =
+            motionFrame.vectorToWorldSpace(Point3(-2.5, 0, 0));
+        Point3 leftForce = motionFrame.vectorToWorldSpace(Point3(0, 0, -1.5));
+        Point3 rightForce = motionFrame.vectorToWorldSpace(Point3(0, 0, 1.5));
+
+        /** Cannot move forward and reverse at the same time and give priority
+         * to forward motion */
+        if (ui->keyDown(GKey('w'))) {
+            m_scene->getPhysicsEngine()->applyForce(player.get(), forwardForce);
+
+        } else if (ui->keyDown(GKey('s')) && m_isPlayerMoving) {
+            m_scene->getPhysicsEngine()->applyForce(player.get(), backwardForce);
+        }
+        /** Similar flow for left and right motions */
+        if (ui->keyDown(GKey('a')) && m_isPlayerMoving) {
+            m_scene->getPhysicsEngine()->applyForce(player.get(), leftForce);
+        } else if (ui->keyDown(GKey('d')) && m_isPlayerMoving) {
+            m_scene->getPhysicsEngine()->applyForce(player.get(), -leftForce);
+        }
+        if (ui->keyDown(GKey::SPACE)) {
+            m_scene->getPhysicsEngine()->applyForce(player.get(),
+                                                    Point3(0, 12.5, 0));
+        }
+
+        /** Update the camera postion and set this to look at the ball */
+        Point3 camPos = motionFrame.vectorToWorldSpace(Point3(-10, 4, 0));
+        camera->setPosition(camPos + motionFrame.translation);
+        camera->lookAt(motionFrame.translation);
     }
 }
 
@@ -95,6 +161,5 @@ void BallApp::onPose(Array<shared_ptr<Surface>> &posed3D,
 
     screenPrintf("WASD to move");
     screenPrintf("Space to jump");
-    screenPrintf("Of course none of it is gonna work now!!!");
 }
 } // namespace G3D
