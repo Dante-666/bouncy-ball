@@ -1,8 +1,8 @@
 /** Copyright 2020 Blood Eagle Studio
  *
- * You may not use, not distribute and not modify this code 
+ * You may not use, not distribute and not modify this code
  * under any manifestable possibility and if such a scenario
- * occurs, any changes to the code must be reviewed by the 
+ * occurs, any changes to the code must be reviewed by the
  * original author of this project.
  *
  *  Author : Siddharth J Singh(dante)
@@ -10,9 +10,9 @@
 
 #pragma once
 
+#include <G3D-app/G3D-app.h>
 #include <G3D-base/G3D-base.h>
 #include <G3D-gfx/G3D-gfx.h>
-#include <G3D-app/G3D-app.h>
 
 //#include <G3D/G3D.h>
 #include "PhysicsScene.h"
@@ -20,8 +20,16 @@
 
 namespace G3D {
 class BallApp : public GApp {
-    shared_ptr<Scene> m_scene;
-    bool m_debugCam;
+    shared_ptr<PhysicsScene> m_scene;
+    bool m_debugCam = false;
+    bool m_isPlayerMoving = false;
+
+    /** This is needed for a lot of things like calculating the heading and
+     * bearing information for the player and also for updating the camera
+     * follower motion
+     */
+    const CFrame
+    computePlayerMotionFrame(const shared_ptr<VisibleEntity> player);
 
 protected:
     /** Called from onInit */

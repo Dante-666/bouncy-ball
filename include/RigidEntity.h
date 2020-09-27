@@ -21,11 +21,11 @@
 
 namespace G3D {
 class RigidEntity : public VisibleEntity {
-protected:
+public:
     Shape::Type m_collisionShape;
     shared_ptr<Shape> m_shape;
+    float m_rollingFriction = 0.f;
 
-public:
     RigidEntity();
 
     // TODO: update the pose of object here by querying the physics engine
@@ -48,10 +48,6 @@ public:
 
     //TODO: add more default shapes and sizes
     void init(Shape::Type collisionShape = Shape::Type::SPHERE);
-
-    const Shape::Type getCollisionShape();
-
-    const shared_ptr<Shape> getShape();
 
     const Shape::Type getShapeTypeFromString(const String shape);
 };

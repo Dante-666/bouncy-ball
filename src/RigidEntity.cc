@@ -26,6 +26,7 @@ void RigidEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
 }
 
 void RigidEntity::updateFrame(CoordinateFrame frame) {
+    m_previousFrame = m_frame;
     m_frame = frame;
     debugAssert(m_frame.rotation.isOrthonormal());
 
@@ -92,6 +93,8 @@ void RigidEntity::init(AnyTableReader &propertyTable) {
     propertyTable.getIfPresent("physicalSimulation", p);
     setPhysicalSimulation(p);
 
+    propertyTable.getIfPresent("rollingFriction", m_rollingFriction);
+
     String collisionShape = "SPHERE";
     propertyTable.getIfPresent("collisionShape", collisionShape);
     m_collisionShape = getShapeTypeFromString(collisionShape);
@@ -141,10 +144,6 @@ void RigidEntity::init(Shape::Type collisionShape) {
     }
     }
 }
-
-const Shape::Type RigidEntity::getCollisionShape() { return m_collisionShape; }
-
-const shared_ptr<Shape> RigidEntity::getShape() { return m_shape; }
 
 const Shape::Type RigidEntity::getShapeTypeFromString(const String shape) {
     if (shape == "SPHERE") {

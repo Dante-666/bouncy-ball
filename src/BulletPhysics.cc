@@ -11,16 +11,18 @@
 #include "BulletPhysics.h"
 #include "G3D-app/ArticulatedModel.h"
 #include "G3D-app/Shape.h"
+#include "G3D-app/VisibleEntity.h"
 #include "G3D-gfx/CPUVertexArray.h"
 #include "RigidEntity.h"
 
 BulletPhysics::BulletPhysics()
     : m_collisionConfig(new btDefaultCollisionConfiguration()),
       m_collisionDispatcher(new btCollisionDispatcher(m_collisionConfig)),
-      m_broadPhase(new btDbvtBroadphase()),
+      m_broadPhase(new btDbvtBroadphase()), m_solverPool(createSolverPool()),
       m_solver(new btSequentialImpulseConstraintSolverMt()),
       m_dynamicsWorld(new btDiscreteDynamicsWorldMt(
-          m_collisionDispatcher, m_broadPhase, nullptr, m_solver, m_collisionConfig)) {
+          m_collisionDispatcher, m_broadPhase, m_solverPool, m_solver,
+          m_collisionConfig)) {
     // Initialize gravity
     m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
 }
@@ -41,13 +43,13 @@ void BulletPhysics::insertRigidEntity(G3D::RigidEntity *entity) {
         entity->canCauseCollisions(),
         "Attempt to include a RigidEntity which cannot cause collisions");
 
-    G3D::Shape::Type collisionShape = entity->getCollisionShape();
+    G3D::Shape::Type collisionShape = entity->m_collisionShape;
     btCollisionShape *colShape;
     // TODO: break this down into a separate function
     switch (collisionShape) {
     case G3D::Shape::Type::SPHERE: {
         shared_ptr<G3D::SphereShape> shape =
-            dynamic_pointer_cast<G3D::SphereShape>(entity->getShape());
+            dynamic_pointer_cast<G3D::SphereShape>(entity->m_shape);
         float area = shape->area();
         btScalar radius = sqrt(area / (4 * M_PI));
 
@@ -55,7 +57,7 @@ void BulletPhysics::insertRigidEntity(G3D::RigidEntity *entity) {
     } break;
     case G3D::Shape::Type::MESH: {
         shared_ptr<G3D::MeshShape> shape =
-            dynamic_pointer_cast<G3D::MeshShape>(entity->getShape());
+            dynamic_pointer_cast<G3D::MeshShape>(entity->m_shape);
 
         btIndexedMesh *mesh = new btIndexedMesh();
         mesh->m_numTriangles = shape->indexArray().size() / 3;
@@ -98,6 +100,7 @@ void BulletPhysics::insertRigidEntity(G3D::RigidEntity *entity) {
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, colShape,
                                                     localInertia);
     btRigidBody *body = new btRigidBody(rbInfo);
+    body->setRollingFriction(entity->m_rollingFriction);
 
     m_dynamicsWorld->addRigidBody(body);
 
@@ -134,17 +137,39 @@ G3D::CoordinateFrame BulletPhysics::getFrame(G3D::VisibleEntity *entity) {
     return convertToG3D(trans);
 }
 
+void BulletPhysics::applyForce(G3D::VisibleEntity *entity, G3D::Point3 force) {
+    auto iter = m_dynamicBodyMap.find(entity);
+    debugAssertM(iter != m_dynamicBodyMap.end(),
+                 "Queried entity is not present in the map");
+    auto collisionObject = iter->second;
+    btRigidBody *rigidBody = btRigidBody::upcast(collisionObject);
+    rigidBody->applyCentralForce(convertFromG3D(force));
+}
+
 void BulletPhysics::simulate(float deltaTime) {
     m_dynamicsWorld->stepSimulation(deltaTime);
 }
 
-G3D::CoordinateFrame BulletPhysics::convertToG3D(const btTransform transform) {
+btConstraintSolverPoolMt *BulletPhysics::createSolverPool() {
+    btConstraintSolverPoolMt *solverPool;
+
+    btConstraintSolver *solvers[BT_MAX_THREAD_COUNT];
+    int maxThreadCount = BT_MAX_THREAD_COUNT;
+    for (int i = 0; i < maxThreadCount; ++i) {
+        solvers[i] = new btSequentialImpulseConstraintSolver();
+    }
+    return new btConstraintSolverPoolMt(solvers, maxThreadCount);
+}
+
+const inline G3D::CoordinateFrame
+BulletPhysics::convertToG3D(const btTransform transform) {
     G3D::Matrix3 rotation = convertToG3D(transform.getBasis());
     G3D::Point3 translation = convertToG3D(transform.getOrigin());
     return G3D::CoordinateFrame(rotation, translation);
 }
 
-G3D::Matrix3 BulletPhysics::convertToG3D(const btMatrix3x3 matrix) {
+const inline G3D::Matrix3
+BulletPhysics::convertToG3D(const btMatrix3x3 matrix) {
     G3D::Vector3 rows[3];
     for (int i = 0; i < 3; i++) {
         rows[i] = convertToG3D(matrix[i]);
@@ -152,22 +177,25 @@ G3D::Matrix3 BulletPhysics::convertToG3D(const btMatrix3x3 matrix) {
     return G3D::Matrix3::fromRows(rows[0], rows[1], rows[2]);
 }
 
-G3D::Point3 BulletPhysics::convertToG3D(const btVector3 vector) {
+const inline G3D::Point3 BulletPhysics::convertToG3D(const btVector3 vector) {
     return G3D::Point3(vector.x(), vector.y(), vector.z());
 }
 
-btTransform BulletPhysics::convertFromG3D(const G3D::CoordinateFrame frame) {
+const inline btTransform
+BulletPhysics::convertFromG3D(const G3D::CoordinateFrame frame) {
     btMatrix3x3 basis = convertFromG3D(frame.rotation);
     btVector3 origin = convertFromG3D(frame.translation);
     return btTransform(basis, origin);
 }
-btMatrix3x3 BulletPhysics::convertFromG3D(const G3D::Matrix3 matrix) {
+const inline btMatrix3x3
+BulletPhysics::convertFromG3D(const G3D::Matrix3 matrix) {
     btVector3 rows[3];
     for (int i = 0; i < 3; i++) {
         rows[i] = convertFromG3D(matrix.row(i));
     }
     return btMatrix3x3(rows[0], rows[1], rows[2]);
 }
-btVector3 BulletPhysics::convertFromG3D(const G3D::Vector3 vector) {
+const inline btVector3
+BulletPhysics::convertFromG3D(const G3D::Vector3 vector) {
     return btVector3(vector.x, vector.y, vector.z);
 }

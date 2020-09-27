@@ -1,8 +1,8 @@
 /** Copyright 2020 Blood Eagle Studio
  *
- * You may not use, not distribute and not modify this code 
+ * You may not use, not distribute and not modify this code
  * under any manifestable possibility and if such a scenario
- * occurs, any changes to the code must be reviewed by the 
+ * occurs, any changes to the code must be reviewed by the
  * original author of this project.
  *
  *  Author : Siddharth J Singh(dante)
@@ -10,13 +10,12 @@
 
 #pragma once
 
-
+#include <G3D-app/G3D-app.h>
 #include <G3D-base/G3D-base.h>
 #include <G3D-gfx/G3D-gfx.h>
-#include <G3D-app/G3D-app.h>
 
-#include "PurePhysics.h"
 #include "BulletPhysics.h"
+#include "PurePhysics.h"
 
 /** \brief An inherited Scene with support for Physics
  *
@@ -25,15 +24,19 @@
  * simulation from an external Physics engine and updates the G3D objects
  * accordingly. Right now, this implementation only supports a single physics
  * world but later, we might need different worlds to run in parallel and on
- * demand. 
+ * demand.
  */
 
 namespace G3D {
 class PhysicsScene : public Scene {
-    //TODO: make the conversion from using concrtete type to abstract type
-    shared_ptr<BulletPhysics> m_physics;
+    // TODO: make the conversion from using concrtete type to abstract type
+    shared_ptr<PurePhysics> m_physics;
+    shared_ptr<VisibleEntity> m_player;
     float m_sec = 0.f;
-    size_t numSphere = 1;
+    int numSphere = 1;
+
+public:
+    CoordinateFrame m_playerMotion;
 
 protected:
     PhysicsScene(const shared_ptr<AmbientOcclusion> &ao);
@@ -58,7 +61,8 @@ public:
      */
     virtual void onSimulation(SimTime deltaTime) override;
 
-    shared_ptr<BulletPhysics> getPhysicsEngine();
+    shared_ptr<PurePhysics> getPhysicsEngine();
 
+    shared_ptr<VisibleEntity> getPlayer();
 };
 } // namespace G3D

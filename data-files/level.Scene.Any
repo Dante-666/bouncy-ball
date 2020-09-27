@@ -11,6 +11,9 @@
 	groundModel = ArticulatedModel::Specification {
 	    filename = "models/floor.obj";
 	};
+	groundModel2 = ArticulatedModel::Specification {
+	    filename = "models/floor2.obj";
+	};
 	curveGroundModel = ArticulatedModel::Specification {
 	    filename = "models/bowl.obj";
 
@@ -32,7 +35,7 @@
     
     entities = {
         
-        sun = Light { 
+        /*sun = Light { 
             attenuation = ( 0, 0, 1 ); 
             bulbPower = Power3(4e+006 ); 
             shadowsEnabled = true; 
@@ -47,31 +50,57 @@
             spotHalfAngleDegrees = 5; 
             rectangular = true; 
             type = "SPOT"; 
+        };*/
+
+        sun = Light { 
+            attenuation = ( 0, 0, 1 ); 
+            bulbPower = Power3(4); 
+            shadowsEnabled = false; 
+            canChange = false;
+            enabled = true; 
+	    shadowMapBias = 0.05;
+            frame = CFrame::fromXYZYPRDegrees(-15.5767, 207.755, -41.952, -164.03, -76.7166, 76.514 ); 
+            nearPlaneZLimit = -170; 
+            producesDirectIllumination = true; 
+            producesIndirectIllumination = false; 
+            type = "DIRECTIONAL"; 
         }; 
 
-        player = VisibleEntity {
-            model = "playerModel";
-            frame = Point3(0, 2, 0); 
-        };
-
-	rigid = RigidEntity {
+	player = RigidEntity {
 	    model = "playerModel";
-	    frame = CFrame::fromXYZYPRDegrees(2, 15, 0, 0, 0, 0);
-	    mass = 1.0;
+	    frame = CFrame::fromXYZYPRDegrees(10, 2, 0, 0, 0, 0);
+	    mass = .5;
+	    rollingFriction = 0.25;
 	    collisionShape = "SPHERE";
 	    shape = Sphere(1.0);
 	};
 
+        /*ground = RigidEntity { 
+            model = "groundModel";
+            frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, -5, 0);
+	    mass = 0.0;
+            canChange = false;
+	    collisionShape = "MESH";
+	};*/
+
         ground = RigidEntity { 
+            model = "groundModel2";
+            frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, 0, 0);
+	    mass = 0.0;
+            canChange = false;
+	    collisionShape = "MESH";
+	};
+
+        /*ground = RigidEntity { 
             model = "curveGroundModel";
             frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, 0, 0);
 	    mass = 0.0;
             canChange = false;
 	    collisionShape = "MESH";
-        };
+        };*/
 
         camera = Camera {
-            frame = CFrame::fromXYZYPRDegrees(0, 10, 20, 0, -25, 0);
+            frame = CFrame::fromXYZYPRDegrees(0, 5, 0, -90, 0, 0);
         
             depthOfFieldSettings = DepthOfFieldSettings {
                 model = "ARTIST";
