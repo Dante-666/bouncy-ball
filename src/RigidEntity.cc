@@ -21,23 +21,7 @@ void RigidEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
         return;
     PhysicsScene *physicsScene = dynamic_cast<PhysicsScene *>(m_scene);
     if (physicsScene) {
-        updateFrame(physicsScene->getPhysicsEngine()->getFrame(this));
-    }
-}
-
-void RigidEntity::updateFrame(CoordinateFrame frame) {
-    m_previousFrame = m_frame;
-    m_frame = frame;
-    debugAssert(m_frame.rotation.isOrthonormal());
-
-    // An object that moves farther than this in one frame is assumed to
-    // have teleported and will be assigned zero velocity
-    const float MAX_DISTANCE = 20.0f;
-
-    if ((m_previousFrame.translation - m_frame.translation).squaredLength() >
-        square(MAX_DISTANCE)) {
-        // Teleport
-        m_previousFrame = m_frame;
+        setFrame(physicsScene->getPhysicsEngine()->getFrame(this));
     }
 }
 

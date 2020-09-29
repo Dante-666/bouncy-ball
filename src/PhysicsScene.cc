@@ -61,13 +61,13 @@ void PhysicsScene::onSimulation(SimTime deltaTime) {
         m_sec += deltaTime;
     }
 
-    /*if (m_sec > 5.f && m_time < 16.f) {
+    if (m_sec > 5.f && m_time < 16.f) {
         m_sec = 0.f;
         String name = "rigid" + String(numSphere++);
         Scene::LoadOptions options;
         Any anyDef = Any::parse(STR(RigidEntity {
             model = "playerModel";
-            frame = CFrame::fromXYZYPRDegrees(5, 10, 0, 0, 0, 0);
+            frame = CFrame::fromXYZYPRDegrees(2, 5, 0, 0, 0, 0);
             mass = 1.0;
             collisionShape = "SPHERE";
             shape = Sphere(1.0);
@@ -76,7 +76,7 @@ void PhysicsScene::onSimulation(SimTime deltaTime) {
         shared_ptr<Entity> entity = RigidEntity::create(
             name, this, propertyTable, m_modelTable, options);
         insert(entity);
-    }*/
+    }
 
     /*if (m_time > 10.f) {
         remove(m_player);

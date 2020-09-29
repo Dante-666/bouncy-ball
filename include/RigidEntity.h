@@ -28,10 +28,8 @@ public:
 
     RigidEntity();
 
-    // TODO: update the pose of object here by querying the physics engine
+    /** update the pose of object here by querying the physics engine */
     virtual void onSimulation(SimTime absoluteTime, SimTime deltaTime) override;
-    // TODO: should remove this
-    void updateFrame(CoordinateFrame frame);
 
     /** For deserialization from Any / loading from file */
     static shared_ptr<Entity> create(const String &name, Scene *scene,
