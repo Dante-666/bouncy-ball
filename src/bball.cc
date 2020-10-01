@@ -102,9 +102,9 @@ bool BallApp::onEvent(const GEvent &event) {
 
     if ((event.type == GEventType::KEY_DOWN) &&
         (event.key.keysym.sym == GKey::TAB)) {
-        m_debugCam = !m_debugCam;
         const shared_ptr<Camera> &camera =
-            m_debugCam ? m_scene->defaultCamera() : debugCamera();
+            m_debugCam ?  m_scene->defaultCamera() : debugCamera();
+        m_debugCam = !m_debugCam;
         setActiveCamera(camera);
     }
 
@@ -113,7 +113,7 @@ bool BallApp::onEvent(const GEvent &event) {
 
 void BallApp::onUserInput(UserInput *ui) {
     GApp::onUserInput(ui);
-    ui->setPureDeltaMouse(!m_debugCam);
+    ui->setPureDeltaMouse(true);
     if (!m_debugCam) {
         shared_ptr<VisibleEntity> player = m_scene->getPlayer();
         const shared_ptr<Camera> camera = m_scene->defaultCamera();
@@ -127,13 +127,21 @@ void BallApp::onUserInput(UserInput *ui) {
         Point3 leftForce = motionFrame.vectorToWorldSpace(Point3(0, 0, -1.5));
         Point3 rightForce = motionFrame.vectorToWorldSpace(Point3(0, 0, 1.5));
 
+        /*if (ui->keyPressed(GKey::TAB)) {
+            m_debugCam = !m_debugCam;
+            const shared_ptr<Camera> &camera =
+                m_debugCam ? m_scene->defaultCamera() : debugCamera();
+            setActiveCamera(camera);
+        }*/
+
         /** Cannot move forward and reverse at the same time and give priority
          * to forward motion */
         if (ui->keyDown(GKey('w'))) {
             m_scene->getPhysicsEngine()->applyForce(player.get(), forwardForce);
 
         } else if (ui->keyDown(GKey('s')) && m_isPlayerMoving) {
-            m_scene->getPhysicsEngine()->applyForce(player.get(), backwardForce);
+            m_scene->getPhysicsEngine()->applyForce(player.get(),
+                                                    backwardForce);
         }
         /** Similar flow for left and right motions */
         if (ui->keyDown(GKey('a')) && m_isPlayerMoving) {
