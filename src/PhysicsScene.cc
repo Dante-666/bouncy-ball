@@ -61,7 +61,7 @@ void PhysicsScene::onSimulation(SimTime deltaTime) {
         m_sec += deltaTime;
     }
 
-    if (m_sec > 5.f && m_time < 16.f) {
+    /*if (m_sec > 5.f && m_time < 16.f) {
         m_sec = 0.f;
         String name = "rigid" + String(numSphere++);
         Scene::LoadOptions options;
@@ -76,7 +76,7 @@ void PhysicsScene::onSimulation(SimTime deltaTime) {
         shared_ptr<Entity> entity = RigidEntity::create(
             name, this, propertyTable, m_modelTable, options);
         insert(entity);
-    }
+    }*/
 
     /*if (m_time > 10.f) {
         remove(m_player);
