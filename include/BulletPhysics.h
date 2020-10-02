@@ -13,13 +13,20 @@
 #include <map>
 #include <set>
 
+#include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
+#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
+
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h"
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h"
+
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
+
 #include "G3D-base/Matrix3x4.h"
 #include "G3D-base/Vector3.h"
 #include "PurePhysics.h"
-#include "btBulletDynamicsCommon.h"
+//#include "btBulletDynamicsCommon.h"
 
 /** \brief Bullet Physics implementations
  *

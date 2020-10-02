@@ -9,9 +9,9 @@
  */
 
 #pragma once
-#include <G3D-base/G3D-base.h>
-#include <G3D-gfx/G3D-gfx.h>
-#include <G3D-app/G3D-app.h>
+#include "G3D-base/G3D-base.h"
+#include "G3D-gfx/G3D-gfx.h"
+#include "G3D-app/G3D-app.h"
 
 #include "G3D-app/VisibleEntity.h"
 #include "RigidEntity.h"

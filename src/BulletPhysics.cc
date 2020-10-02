@@ -9,6 +9,10 @@
  */
 
 #include "BulletPhysics.h"
+#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
+#include "LinearMath/btDefaultMotionState.h"
 #include "G3D-app/ArticulatedModel.h"
 #include "G3D-app/Shape.h"
 #include "G3D-app/VisibleEntity.h"
@@ -25,6 +29,7 @@ BulletPhysics::BulletPhysics()
           m_collisionConfig)) {
     // Initialize gravity
     m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
+    btSetTaskScheduler(btGetTBBTaskScheduler());
 }
 
 BulletPhysics::~BulletPhysics() {
@@ -187,6 +192,7 @@ BulletPhysics::convertFromG3D(const G3D::CoordinateFrame frame) {
     btVector3 origin = convertFromG3D(frame.translation);
     return btTransform(basis, origin);
 }
+
 const inline btMatrix3x3
 BulletPhysics::convertFromG3D(const G3D::Matrix3 matrix) {
     btVector3 rows[3];
@@ -195,6 +201,7 @@ BulletPhysics::convertFromG3D(const G3D::Matrix3 matrix) {
     }
     return btMatrix3x3(rows[0], rows[1], rows[2]);
 }
+
 const inline btVector3
 BulletPhysics::convertFromG3D(const G3D::Vector3 vector) {
     return btVector3(vector.x, vector.y, vector.z);

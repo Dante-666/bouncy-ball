@@ -15,9 +15,9 @@
  * interact with other rigid bodies and soft materials which can work with that
  * engine.
  */
-#include <G3D-base/G3D-base.h>
-#include <G3D-gfx/G3D-gfx.h>
-#include <G3D-app/G3D-app.h>
+#include "G3D-base/G3D-base.h"
+#include "G3D-gfx/G3D-gfx.h"
+#include "G3D-app/G3D-app.h"
 
 namespace G3D {
 class RigidEntity : public VisibleEntity {

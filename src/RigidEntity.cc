@@ -88,6 +88,26 @@ void RigidEntity::init(AnyTableReader &propertyTable) {
         propertyTable.getIfPresent("shape", sphere);
         m_shape = createShared<SphereShape>(sphere);
     } break;
+    case Shape::Type::BOX: {
+        Box box;
+        propertyTable.getIfPresent("shape", box);
+        m_shape = createShared<BoxShape>(box);
+    } break;
+    case Shape::Type::CYLINDER: {
+        Cylinder cylinder;
+        propertyTable.getIfPresent("shape", cylinder);
+        m_shape = createShared<CylinderShape>(cylinder);
+    } break;
+    /*case Shape::Type::CAPSULE: {
+        Capsule capsule;
+        propertyTable.getIfPresent("shape", capsule);
+        m_shape = createShared<CapsuleShape>(capsule);
+    } break;*/
+    case Shape::Type::PLANE: {
+        Plane plane;
+        propertyTable.getIfPresent("shape", plane);
+        m_shape = createShared<PlaneShape>(plane);
+    } break;
     case Shape::Type::MESH: {
         // TODO: Create a MeshShape to hold the coordinates and pass this as
         // data to the physics engine
@@ -95,16 +115,15 @@ void RigidEntity::init(AnyTableReader &propertyTable) {
             dynamic_pointer_cast<G3D::ArticulatedModel>(this->model());
         debugAssertM(model->meshArray().size() == 1,
                      "Attempt to add a model with multiple Meshes");
-	ArticulatedModel::Mesh* firstMesh = model->meshArray()[0];
+        ArticulatedModel::Mesh *firstMesh = model->meshArray()[0];
         CPUVertexArray &fullVertex = firstMesh->geometry->cpuVertexArray;
 
-	Array<int> index = firstMesh->cpuIndexArray;
+        Array<int> index = firstMesh->cpuIndexArray;
         Array<Point3> vertex;
         for (int i = 0; i < fullVertex.vertex.size(); i++) {
             vertex.push_back(fullVertex.vertex[i].position);
         }
-        m_shape =
-            createShared<MeshShape>(vertex, index);
+        m_shape = createShared<MeshShape>(vertex, index);
     } break;
     default: {
         debugAssertM(false, "Unknown collisionShape parameter was passed");
@@ -119,6 +138,22 @@ void RigidEntity::init(Shape::Type collisionShape) {
         Sphere sphere(1.0);
         m_shape = createShared<SphereShape>(sphere);
     } break;
+    case Shape::Type::BOX: {
+        Box box;
+        m_shape = createShared<BoxShape>(box);
+    } break;
+    case Shape::Type::CYLINDER: {
+        Cylinder cylinder;
+        m_shape = createShared<CylinderShape>(cylinder);
+    } break;
+    /*case Shape::Type::CAPSULE: {
+        Capsule capsule;
+        m_shape = createShared<CapsuleShape>(capsule);
+    } break;*/
+    case Shape::Type::PLANE: {
+        Plane plane;
+        m_shape = createShared<PlaneShape>(plane);
+    } break;
     case Shape::Type::MESH: {
         // TODO: this needs to be handled a bit more properly
         // maybe use a MeshShape?
@@ -132,6 +167,14 @@ void RigidEntity::init(Shape::Type collisionShape) {
 const Shape::Type RigidEntity::getShapeTypeFromString(const String shape) {
     if (shape == "SPHERE") {
         return Shape::Type::SPHERE;
+    } else if (shape == "BOX") {
+        return Shape::Type::BOX;
+    } else if (shape == "CYLINDER") {
+        return Shape::Type::CYLINDER;
+    } else if (shape == "CAPSULE") {
+        return Shape::Type::CAPSULE;
+    } else if (shape == "PLANE") {
+        return Shape::Type::PLANE;
     } else if (shape == "MESH") {
         return Shape::Type::MESH;
     } else {
