@@ -103,7 +103,7 @@ bool BallApp::onEvent(const GEvent &event) {
     if ((event.type == GEventType::KEY_DOWN) &&
         (event.key.keysym.sym == GKey::TAB)) {
         const shared_ptr<Camera> &camera =
-            m_debugCam ?  m_scene->defaultCamera() : debugCamera();
+            m_debugCam ? m_scene->defaultCamera() : debugCamera();
         m_debugCam = !m_debugCam;
         setActiveCamera(camera);
     }
@@ -126,13 +126,6 @@ void BallApp::onUserInput(UserInput *ui) {
             motionFrame.vectorToWorldSpace(Point3(-2.5, 0, 0));
         Point3 leftForce = motionFrame.vectorToWorldSpace(Point3(0, 0, -1.5));
         Point3 rightForce = motionFrame.vectorToWorldSpace(Point3(0, 0, 1.5));
-
-        /*if (ui->keyPressed(GKey::TAB)) {
-            m_debugCam = !m_debugCam;
-            const shared_ptr<Camera> &camera =
-                m_debugCam ? m_scene->defaultCamera() : debugCamera();
-            setActiveCamera(camera);
-        }*/
 
         /** Cannot move forward and reverse at the same time and give priority
          * to forward motion */

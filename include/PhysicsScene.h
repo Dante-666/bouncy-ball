@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include <G3D-app/G3D-app.h>
-#include <G3D-base/G3D-base.h>
-#include <G3D-gfx/G3D-gfx.h>
+#include "G3D-app/G3D-app.h"
+#include "G3D-base/G3D-base.h"
+#include "G3D-gfx/G3D-gfx.h"
 
 #include "BulletPhysics.h"
 #include "PurePhysics.h"
@@ -45,7 +45,7 @@ public:
     static shared_ptr<PhysicsScene>
     create(const shared_ptr<AmbientOcclusion> &ao);
     /** This should be overriden to support the physics entities, models don't
-     * have to be since they are quite independent from the entity themselves
+     * have to be since they are decorated instances of the entity themselves
      */
     virtual shared_ptr<Entity>
     insert(const shared_ptr<Entity> &entity) override;

@@ -13,13 +13,21 @@
 #include <map>
 #include <set>
 
+#include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h"
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
-#include "G3D-base/Matrix3x4.h"
+#include "LinearMath/btDefaultMotionState.h"
+
+#include "G3D-app/ArticulatedModel.h"
+#include "G3D-app/Shape.h"
+#include "G3D-app/VisibleEntity.h"
+#include "G3D-base/CoordinateFrame.h"
 #include "G3D-base/Vector3.h"
+#include "G3D-gfx/CPUVertexArray.h"
+
+#include "BulletFactory.h"
 #include "PurePhysics.h"
-#include "btBulletDynamicsCommon.h"
 
 /** \brief Bullet Physics implementations
  *
@@ -49,8 +57,9 @@ class BulletPhysics : public PurePhysics {
     // that or if it goes out of scope, then also the simulation needs to be
     // filtered for collision detection only between relevant objects A map
     // might be the best option to update and track entities which were added
+    // TODO: Lifecycle or Object Pool may be used inside the Factory itself and
+    // have this class use it as a private member
     std::map<G3D::VisibleEntity *, btCollisionObject *> m_dynamicBodyMap;
-    std::set<btCollisionObject *> m_staticBodySet;
 
 public:
     // TODO: remove objects created for testing
@@ -66,9 +75,9 @@ public:
     BulletPhysics(BulletPhysics &&) = delete;
     BulletPhysics &&operator=(BulletPhysics &&) = delete;
 
-    virtual void insertRigidEntity(G3D::RigidEntity *entity) override;
+    virtual void insertEntity(G3D::VisibleEntity *entity) override;
 
-    virtual void removeRigidEntity(G3D::RigidEntity *entity) override;
+    virtual void removeEntity(G3D::VisibleEntity *entity) override;
 
     virtual G3D::CoordinateFrame getFrame(G3D::VisibleEntity *entity) override;
 
@@ -79,13 +88,4 @@ public:
 private:
     // For creating the solver pool
     btConstraintSolverPoolMt *createSolverPool();
-
-    // Helper functions for easy conversion of data
-    const inline G3D::CoordinateFrame convertToG3D(const btTransform transform);
-    const inline G3D::Matrix3 convertToG3D(const btMatrix3x3 matrix);
-    const inline G3D::Point3 convertToG3D(const btVector3 vector);
-
-    const inline btTransform convertFromG3D(const G3D::CoordinateFrame frame);
-    const inline btMatrix3x3 convertFromG3D(const G3D::Matrix3 matrix);
-    const inline btVector3 convertFromG3D(const G3D::Vector3 vector);
 };

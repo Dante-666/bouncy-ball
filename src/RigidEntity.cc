@@ -9,9 +9,8 @@
  */
 
 #include "RigidEntity.h"
-#include "G3D-app/ArticulatedModel.h"
+
 #include "PhysicsScene.h"
-#include <memory>
 
 namespace G3D {
 RigidEntity::RigidEntity() : VisibleEntity(){};
@@ -29,7 +28,6 @@ shared_ptr<Entity> RigidEntity::create(const String &name, Scene *scene,
                                        AnyTableReader &propertyTable,
                                        const ModelTable &modelTable,
                                        const Scene::LoadOptions &loadOptions) {
-
     // Don't initialize in the constructor, where it is unsafe to throw Any
     // parse exceptions
     shared_ptr<RigidEntity> rigidEntity(new RigidEntity());
@@ -48,7 +46,6 @@ shared_ptr<Entity> RigidEntity::create(const String &name, Scene *scene,
 shared_ptr<Entity> RigidEntity::create(const String &name, Scene *scene,
                                        const CFrame &position,
                                        const shared_ptr<Model> &model) {
-
     // Don't initialize in the constructor, where it is unsafe to throw Any
     // parse exceptions
     shared_ptr<RigidEntity> rigidEntity(new RigidEntity());
@@ -65,7 +62,6 @@ shared_ptr<Entity> RigidEntity::create(const String &name, Scene *scene,
 }
 
 void RigidEntity::init(AnyTableReader &propertyTable) {
-
     // Default expectation of this entity is to cause collisions and it is a
     // part of physical simulation so set those parameters accordingly
     bool c = true;
@@ -88,23 +84,41 @@ void RigidEntity::init(AnyTableReader &propertyTable) {
         propertyTable.getIfPresent("shape", sphere);
         m_shape = createShared<SphereShape>(sphere);
     } break;
+    case Shape::Type::BOX: {
+        Box box;
+        propertyTable.getIfPresent("shape", box);
+	auto vol = box.volume();
+        m_shape = createShared<BoxShape>(box);
+    } break;
+    case Shape::Type::CYLINDER: {
+        Cylinder cylinder;
+        propertyTable.getIfPresent("shape", cylinder);
+        m_shape = createShared<CylinderShape>(cylinder);
+    } break;
+    /*case Shape::Type::CAPSULE: {
+        Capsule capsule;
+        propertyTable.getIfPresent("shape", capsule);
+        m_shape = createShared<CapsuleShape>(capsule);
+    } break;*/
+    case Shape::Type::PLANE: {
+        Plane plane;
+        propertyTable.getIfPresent("shape", plane);
+        m_shape = createShared<PlaneShape>(plane);
+    } break;
     case Shape::Type::MESH: {
-        // TODO: Create a MeshShape to hold the coordinates and pass this as
-        // data to the physics engine
         const shared_ptr<ArticulatedModel> model =
             dynamic_pointer_cast<G3D::ArticulatedModel>(this->model());
         debugAssertM(model->meshArray().size() == 1,
                      "Attempt to add a model with multiple Meshes");
-	ArticulatedModel::Mesh* firstMesh = model->meshArray()[0];
+        ArticulatedModel::Mesh *firstMesh = model->meshArray()[0];
         CPUVertexArray &fullVertex = firstMesh->geometry->cpuVertexArray;
 
-	Array<int> index = firstMesh->cpuIndexArray;
+        Array<int> index = firstMesh->cpuIndexArray;
         Array<Point3> vertex;
         for (int i = 0; i < fullVertex.vertex.size(); i++) {
             vertex.push_back(fullVertex.vertex[i].position);
         }
-        m_shape =
-            createShared<MeshShape>(vertex, index);
+        m_shape = createShared<MeshShape>(vertex, index);
     } break;
     default: {
         debugAssertM(false, "Unknown collisionShape parameter was passed");
@@ -119,6 +133,22 @@ void RigidEntity::init(Shape::Type collisionShape) {
         Sphere sphere(1.0);
         m_shape = createShared<SphereShape>(sphere);
     } break;
+    case Shape::Type::BOX: {
+        Box box;
+        m_shape = createShared<BoxShape>(box);
+    } break;
+    case Shape::Type::CYLINDER: {
+        Cylinder cylinder;
+        m_shape = createShared<CylinderShape>(cylinder);
+    } break;
+    /*case Shape::Type::CAPSULE: {
+        Capsule capsule;
+        m_shape = createShared<CapsuleShape>(capsule);
+    } break;*/
+    case Shape::Type::PLANE: {
+        Plane plane;
+        m_shape = createShared<PlaneShape>(plane);
+    } break;
     case Shape::Type::MESH: {
         // TODO: this needs to be handled a bit more properly
         // maybe use a MeshShape?
@@ -132,6 +162,14 @@ void RigidEntity::init(Shape::Type collisionShape) {
 const Shape::Type RigidEntity::getShapeTypeFromString(const String shape) {
     if (shape == "SPHERE") {
         return Shape::Type::SPHERE;
+    } else if (shape == "BOX") {
+        return Shape::Type::BOX;
+    } else if (shape == "CYLINDER") {
+        return Shape::Type::CYLINDER;
+    } else if (shape == "CAPSULE") {
+        return Shape::Type::CAPSULE;
+    } else if (shape == "PLANE") {
+        return Shape::Type::PLANE;
     } else if (shape == "MESH") {
         return Shape::Type::MESH;
     } else {

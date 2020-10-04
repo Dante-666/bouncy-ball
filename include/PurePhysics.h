@@ -9,9 +9,9 @@
  */
 
 #pragma once
-#include <G3D-base/G3D-base.h>
-#include <G3D-gfx/G3D-gfx.h>
-#include <G3D-app/G3D-app.h>
+#include "G3D-base/G3D-base.h"
+#include "G3D-gfx/G3D-gfx.h"
+#include "G3D-app/G3D-app.h"
 
 #include "G3D-app/VisibleEntity.h"
 #include "RigidEntity.h"
@@ -38,14 +38,12 @@ public:
     /** Insertion routine for different objects. Since G3D provides the m_pose
      * as a protected member for VisibleEntity, we cannot create a generic
      * CollisionEntity from it.
-     * TODO: The VisibleEntity itself can be superclass CollisionEntity and when
-     * generalization is needed, deprecate the individual interfaces.
      * TODO: Implement this class using at least 2-3 physics engines, first with
      * bullet and next with PhysX also try with a AI based engine as that is
      * supposed to be a bit faster
      */
-    virtual void insertRigidEntity(G3D::RigidEntity *entity) = 0;
-    virtual void removeRigidEntity(G3D::RigidEntity *entity) = 0;
+    virtual void insertEntity(G3D::VisibleEntity *entity) = 0;
+    virtual void removeEntity(G3D::VisibleEntity *entity) = 0;
 
     /** Extract the CoordinateFrame information from whatever RT datatypes the
      * underlying physics engine supports so that G3D can make the corresponding
