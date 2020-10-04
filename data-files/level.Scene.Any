@@ -8,6 +8,12 @@
 	playerModel = ArticulatedModel::Specification {
 	    filename = "models/ball.obj";
 	};
+	boxModel = ArticulatedModel::Specification {
+	    filename = "models/box.obj";
+	};
+	cylinderModel = ArticulatedModel::Specification {
+	    filename = "models/cylinder.obj";
+	};
 	groundModel = ArticulatedModel::Specification {
 	    filename = "models/floor.obj";
 	};
@@ -81,12 +87,19 @@
 	};
 
 	box = RigidEntity {
-	    model = "playerModel";
-	    frame = CFrame::fromXYZYPRDegrees(16, 5, 0, 0, -90, 0);
+	    model = "boxModel";
+	    frame = CFrame::fromXYZYPRDegrees(16, 5, 5, 0, -90, 0);
 	    mass = .5;
 	    rollingFriction = 0.3;
-	    //collisionShape = "BOX";
-	    //shape = Box(Point3(-1, -1, -1), Point3(1, 1, 1));
+	    collisionShape = "BOX";
+	    shape = Box(Point3(-1, -1, -1), Point3(1, 1, 1));
+	};
+
+	cylinder = RigidEntity {
+	    model = "cylinderModel";
+	    frame = CFrame::fromXYZYPRDegrees(16, 5, 0, 0, -90, 0);
+	    mass = .35;
+	    rollingFriction = 0.3;
 	    collisionShape = "CYLINDER";
 	    shape = Cylinder {
 		p1 = Point3(1, 0, 0);
@@ -109,25 +122,10 @@
 	    visible = true;
 	    mass = 0.0;
             canChange = false;
-	    collisionShape = "MESH";
+	    collisionShape = "BOX";
 	    //Supply boxes with centered dimensions and then move those around
-	    //shape = Box(Point3(-50, -1, -50), Point3(50, 1, 50));
-	    //shape = Plane(Point3(0, 1, 0), Point3(1, 0, 1));
-	    //#13 mentions this problem, we cann't run onPose
-	    //shape = Cylinder(Point3(1, 0, 0), Point3(0, 0, 1), 10);
+	    shape = Box(Point3(-100, -1, -100), Point3(100, 1, 100));
 	};
-
-        /*ground = RigidEntity { 
-            model = "curveGroundModel";
-            frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, 0, 0);
-=======
-            model = "groundModel";
-            frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, -5, 0);
->>>>>>> Stashed changes
-	    mass = 0.0;
-            canChange = false;
-	    collisionShape = "MESH";
-        };*/
 
         camera = Camera {
             frame = CFrame::fromXYZYPRDegrees(0, 5, 0, -90, 0, 0);
