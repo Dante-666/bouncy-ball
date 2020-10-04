@@ -20,35 +20,19 @@ PhysicsScene::create(const shared_ptr<AmbientOcclusion> &ao) {
 }
 
 shared_ptr<Entity> PhysicsScene::insert(const shared_ptr<Entity> &entity) {
-    debugAssert(notNull(entity));
     // handle the insertion and TODO deletion of the RigidEntity a bit
     // differently and update the correlation map which has the information
     const shared_ptr<RigidEntity> &rigid =
         dynamic_pointer_cast<RigidEntity>(entity);
 
     if (notNull(rigid)) {
-        debugAssertM(!m_entityTable.containsKey(entity->name()),
-                     "Two Entitys with the same name, \"" + entity->name() +
-                         ":" + numSphere + "\"");
-
-        m_entityTable.set(rigid->name(), entity);
-        m_entityArray.append(rigid);
-        m_lastStructuralChangeTime = System::time();
-
-        m_physics->insertRigidEntity(rigid.get());
-        
-	m_lastVisibleChangeTime = System::time();
-        if (entity->name() == "player") {
+        m_physics->insertEntity(rigid.get());
+        if (rigid->name() == "player") {
             m_player = rigid;
-	    m_playerMotion = rigid->frame();
+            m_playerMotion = rigid->frame();
         }
-        entity->onSimulation(m_time, 0);
-        Array<shared_ptr<Surface>> ignore;
-        entity->onPose(ignore);
-    } else {
-        return Scene::insert(entity);
     }
-
+    Scene::insert(entity);
     return entity;
 }
 
@@ -61,7 +45,7 @@ void PhysicsScene::onSimulation(SimTime deltaTime) {
         m_sec += deltaTime;
     }
 
-    if (m_sec > 5.f && m_time < 16.f) {
+    /*if (m_sec > 5.f && m_time < 16.f) {
         m_sec = 0.f;
         String name = "rigid" + String(numSphere++);
         Scene::LoadOptions options;
@@ -76,7 +60,7 @@ void PhysicsScene::onSimulation(SimTime deltaTime) {
         shared_ptr<Entity> entity = RigidEntity::create(
             name, this, propertyTable, m_modelTable, options);
         insert(entity);
-    }
+    }*/
 
     /*if (m_time > 10.f) {
         remove(m_player);

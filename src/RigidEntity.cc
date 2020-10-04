@@ -9,9 +9,8 @@
  */
 
 #include "RigidEntity.h"
-#include "G3D-app/ArticulatedModel.h"
+
 #include "PhysicsScene.h"
-#include <memory>
 
 namespace G3D {
 RigidEntity::RigidEntity() : VisibleEntity(){};
@@ -29,7 +28,6 @@ shared_ptr<Entity> RigidEntity::create(const String &name, Scene *scene,
                                        AnyTableReader &propertyTable,
                                        const ModelTable &modelTable,
                                        const Scene::LoadOptions &loadOptions) {
-
     // Don't initialize in the constructor, where it is unsafe to throw Any
     // parse exceptions
     shared_ptr<RigidEntity> rigidEntity(new RigidEntity());
@@ -48,7 +46,6 @@ shared_ptr<Entity> RigidEntity::create(const String &name, Scene *scene,
 shared_ptr<Entity> RigidEntity::create(const String &name, Scene *scene,
                                        const CFrame &position,
                                        const shared_ptr<Model> &model) {
-
     // Don't initialize in the constructor, where it is unsafe to throw Any
     // parse exceptions
     shared_ptr<RigidEntity> rigidEntity(new RigidEntity());
@@ -65,7 +62,6 @@ shared_ptr<Entity> RigidEntity::create(const String &name, Scene *scene,
 }
 
 void RigidEntity::init(AnyTableReader &propertyTable) {
-
     // Default expectation of this entity is to cause collisions and it is a
     // part of physical simulation so set those parameters accordingly
     bool c = true;
@@ -91,6 +87,7 @@ void RigidEntity::init(AnyTableReader &propertyTable) {
     case Shape::Type::BOX: {
         Box box;
         propertyTable.getIfPresent("shape", box);
+	auto vol = box.volume();
         m_shape = createShared<BoxShape>(box);
     } break;
     case Shape::Type::CYLINDER: {
@@ -109,8 +106,6 @@ void RigidEntity::init(AnyTableReader &propertyTable) {
         m_shape = createShared<PlaneShape>(plane);
     } break;
     case Shape::Type::MESH: {
-        // TODO: Create a MeshShape to hold the coordinates and pass this as
-        // data to the physics engine
         const shared_ptr<ArticulatedModel> model =
             dynamic_pointer_cast<G3D::ArticulatedModel>(this->model());
         debugAssertM(model->meshArray().size() == 1,

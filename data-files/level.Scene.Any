@@ -73,11 +73,26 @@
 
 	player = RigidEntity {
 	    model = "playerModel";
-	    frame = CFrame::fromXYZYPRDegrees(10, 2, 0, 0, 0, 0);
+	    frame = CFrame::fromXYZYPRDegrees(10, 5, 0, 0, 0, 0);
 	    mass = .5;
-	    rollingFriction = 0.25;
+	    rollingFriction = 0.3;
 	    collisionShape = "SPHERE";
 	    shape = Sphere(1.0);
+	};
+
+	box = RigidEntity {
+	    model = "playerModel";
+	    frame = CFrame::fromXYZYPRDegrees(16, 5, 0, 0, -90, 0);
+	    mass = .5;
+	    rollingFriction = 0.3;
+	    //collisionShape = "BOX";
+	    //shape = Box(Point3(-1, -1, -1), Point3(1, 1, 1));
+	    collisionShape = "CYLINDER";
+	    shape = Cylinder {
+		p1 = Point3(1, 0, 0);
+		p2 = Point3(0, 0, 1);
+		radius = 1.f;
+	    };
 	};
 
         /*ground = RigidEntity { 
@@ -90,10 +105,16 @@
 
         ground = RigidEntity { 
             model = "groundModel2";
-            frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, -5, 0);
+            frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, 0, 0);
+	    visible = true;
 	    mass = 0.0;
             canChange = false;
 	    collisionShape = "MESH";
+	    //Supply boxes with centered dimensions and then move those around
+	    //shape = Box(Point3(-50, -1, -50), Point3(50, 1, 50));
+	    //shape = Plane(Point3(0, 1, 0), Point3(1, 0, 1));
+	    //#13 mentions this problem, we cann't run onPose
+	    //shape = Cylinder(Point3(1, 0, 0), Point3(0, 0, 1), 10);
 	};
 
         /*ground = RigidEntity { 
