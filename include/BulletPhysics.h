@@ -46,12 +46,6 @@ class BulletPhysics : public PurePhysics {
     btConstraintSolverPoolMt *m_solverPool;
     btConstraintSolver *m_solver;
     btDynamicsWorld *m_dynamicsWorld;
-
-    btAlignedObjectArray<btCollisionShape *> m_collisionShapes;
-    // TODO: seems to be but it's always better to keep a map of these entries
-    // TODO: do we actually need to store this? we definetly need a pointer to
-    // store the btCollisionObject array which is obtained from the
-    // dynamicsWorld
     // TODO: How to handle the lifecycle management? Suppose a scenario in which
     // the RigidEntity is not visible anymore, then we don't need to simulate
     // that or if it goes out of scope, then also the simulation needs to be
@@ -59,10 +53,9 @@ class BulletPhysics : public PurePhysics {
     // might be the best option to update and track entities which were added
     // TODO: Lifecycle or Object Pool may be used inside the Factory itself and
     // have this class use it as a private member
-    std::map<G3D::VisibleEntity *, btCollisionObject *> m_dynamicBodyMap;
+    std::map<const G3D::Entity *, btCollisionObject *> m_dynamicBodyMap;
 
 public:
-    // TODO: remove objects created for testing
     BulletPhysics();
     virtual ~BulletPhysics() override;
 
@@ -75,13 +68,19 @@ public:
     BulletPhysics(BulletPhysics &&) = delete;
     BulletPhysics &&operator=(BulletPhysics &&) = delete;
 
-    virtual void insertEntity(G3D::VisibleEntity *entity) override;
+    virtual void insertEntity(const G3D::Entity *entity) override;
 
-    virtual void removeEntity(G3D::VisibleEntity *entity) override;
+    virtual void removeEntity(const G3D::Entity *entity) override;
 
-    virtual G3D::CoordinateFrame getFrame(G3D::VisibleEntity *entity) override;
+    virtual void applyForceField(const G3D::Entity *field, const G3D::Vector3 force) override;
+   // , const G3D::VisibleEntity *reactor) override;
 
-    virtual void applyForce(G3D::VisibleEntity *entity, G3D::Point3 force) override;
+    virtual G3D::CoordinateFrame getFrame(const G3D::Entity *entity) override;
+
+    virtual void setFrame(const G3D::Entity *entity,
+                          const G3D::CoordinateFrame frame) override;
+
+    virtual void applyForce(G3D::Entity *entity, G3D::Point3 force) override;
 
     virtual void simulate(float deltaTime) override;
 

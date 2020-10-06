@@ -9,12 +9,14 @@
  */
 
 #include "BulletFactory.h"
+#include "G3D-app/MarkerEntity.h"
 #include "RigidEntity.h"
 
-btCollisionShape *ColShapeFactory::create(G3D::VisibleEntity *entity) {
-    const G3D::RigidEntity *rigid = dynamic_cast<G3D::RigidEntity *>(entity);
-    debugAssertM(notNull(rigid), "Attempted to include nonRigidEnity!");
+btCollisionShape *MarkerShapeFactory::create(const G3D::MarkerEntity *marker) {
+    return new btBoxShape(Vector::convert(marker->osBoxArray()[0].corner(7)));
+}
 
+btCollisionShape *RigidShapeFactory::create(const G3D::RigidEntity *rigid) {
     auto type = rigid->m_shape->type();
     shared_ptr<G3D::Shape> shape_ = rigid->m_shape;
     switch (type) {
@@ -86,16 +88,13 @@ return new btSphereShape(radius);
     return new btSphereShape(1.f);
 }
 
-btRigidBody *RigidBodyFactory::create(G3D::VisibleEntity *entity) {
-    const G3D::RigidEntity *rigid = dynamic_cast<G3D::RigidEntity *>(entity);
-    debugAssertM(notNull(rigid), "Attempted to include nonRigidEnity!");
+btRigidBody *RigidBodyFactory::create(const G3D::RigidEntity *rigid) {
+    btCollisionShape *colShape = RigidShapeFactory::create(rigid);
 
-    btCollisionShape *colShape = ColShapeFactory::create(entity);
-
-    btScalar mass = entity->mass();
+    btScalar mass = rigid->mass();
 
     // rigidbody is dynamic if and only if mass is non zero, otherwise static
-    bool isDynamic = (mass != 0.f) || entity->canChange();
+    bool isDynamic = (mass != 0.f) || rigid->canChange();
 
     // TODO: read from Any file as well
     btVector3 localInertia = btVector3(0, 0, 0);
@@ -105,7 +104,7 @@ btRigidBody *RigidBodyFactory::create(G3D::VisibleEntity *entity) {
     // using motionstate is recommended, it provides interpolation
     // capabilities, and only synchronizes 'active' objects
     btDefaultMotionState *motionState =
-        new btDefaultMotionState(Frame::convert(entity->frame()));
+        new btDefaultMotionState(Frame::convert(rigid->frame()));
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, colShape,
                                                     localInertia);
 
@@ -115,6 +114,17 @@ btRigidBody *RigidBodyFactory::create(G3D::VisibleEntity *entity) {
     body->setRollingFriction(rigid->m_rollingFriction);
 
     return body;
+}
+
+btGhostObject *GhostObjectFactory::create(const G3D::MarkerEntity *marker) {
+    btGhostObject *ghost = new btGhostObject();
+    ghost->setCollisionShape(MarkerShapeFactory::create(marker));
+    ghost->setWorldTransform(Frame::convert(marker->frame()));
+    ghost->setCollisionFlags(
+        btCollisionObject::CollisionFlags::CF_STATIC_OBJECT |
+        btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE);
+
+    return ghost;
 }
 
 const btTransform Frame::convert(G3D::CoordinateFrame frame) {

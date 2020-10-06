@@ -52,25 +52,11 @@
             nearPlaneZLimit = -170; 
             producesDirectIllumination = true; 
             producesIndirectIllumination = true; 
-            shadowMapSize = Vector2int16(2048, 2048 ); 
+            shadowMapSize = Vector2int16(2048, 2048); 
             spotHalfAngleDegrees = 5; 
             rectangular = true; 
             type = "SPOT"; 
         };
-
-        /*sun = Light { 
-            attenuation = ( 0, 0, 1 ); 
-            bulbPower = Power3(4); 
-            shadowsEnabled = false; 
-            canChange = false;
-            enabled = true; 
-	    shadowMapBias = 0.05;
-            frame = CFrame::fromXYZYPRDegrees(-15.5767, 207.755, -41.952, -164.03, -76.7166, 76.514 ); 
-            nearPlaneZLimit = -170; 
-            producesDirectIllumination = true; 
-            producesIndirectIllumination = false; 
-            type = "DIRECTIONAL"; 
-        };*/
 
         /*player = VisibleEntity {
             model = "playerModel";
@@ -79,14 +65,24 @@
 
 	player = RigidEntity {
 	    model = "playerModel";
-	    frame = CFrame::fromXYZYPRDegrees(10, 5, 0, 0, 0, 0);
+	    frame = CFrame::fromXYZYPRDegrees(5, 5, 0, 0, 0, 0);
 	    mass = .5;
 	    rollingFriction = 0.3;
 	    collisionShape = "SPHERE";
 	    shape = Sphere(1.0);
 	};
 
-	box = RigidEntity {
+	force1 = ForceFieldEntity {
+	    frame = CFrame::fromXYZYPRDegrees(15, 5, 0, 45, 0, 0);
+	    osBoxArray = [
+		Box(Point3(-1, -1, -1), Point3(15, 3, 5));
+	    ];
+	    color = Color3(1.0, 0, 0);
+	    canChange = false;
+	    force = Vector3(0, 0, 10);
+	};
+
+	/*box = RigidEntity {
 	    model = "boxModel";
 	    frame = CFrame::fromXYZYPRDegrees(16, 5, 5, 0, -90, 0);
 	    mass = .5;
@@ -106,7 +102,7 @@
 		p2 = Point3(0, 0, 1);
 		radius = 1.f;
 	    };
-	};
+	};*/
 
         /*ground = RigidEntity { 
             model = "groundModel";
@@ -122,13 +118,13 @@
 	    visible = true;
 	    mass = 0.0;
             canChange = false;
-	    collisionShape = "BOX";
+	    collisionShape = "MESH";
 	    //Supply boxes with centered dimensions and then move those around
-	    shape = Box(Point3(-100, -1, -100), Point3(100, 1, 100));
+	    //shape = Box(Point3(-100, -1, -100), Point3(100, 1, 100));
 	};
 
         camera = Camera {
-            frame = CFrame::fromXYZYPRDegrees(0, 5, 0, -90, 0, 0);
+            frame = CFrame::fromXYZYPRDegrees(0, 5, -30, -90, 0, 0);
         
             depthOfFieldSettings = DepthOfFieldSettings {
                 model = "ARTIST";
@@ -137,7 +133,7 @@
             };
 
             motionBlurSettings = MotionBlurSettings {
-                enabled = false;
+                enabled = true;
             };
 
             projection = Projection {

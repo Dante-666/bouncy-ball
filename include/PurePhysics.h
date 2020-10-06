@@ -1,20 +1,19 @@
 /** Copyright 2020 Blood Eagle Studio
  *
- * You may not use, not distribute and not modify this code 
+ * You may not use, not distribute and not modify this code
  * under any manifestable possibility and if such a scenario
- * occurs, any changes to the code must be reviewed by the 
+ * occurs, any changes to the code must be reviewed by the
  * original author of this project.
  *
  *  Author : Siddharth J Singh(dante)
  */
 
 #pragma once
-#include "G3D-base/G3D-base.h"
-#include "G3D-gfx/G3D-gfx.h"
 #include "G3D-app/G3D-app.h"
-
-#include "G3D-app/VisibleEntity.h"
-#include "RigidEntity.h"
+#include "G3D-base/G3D-base.h"
+#include "G3D-base/Matrix3x4.h"
+#include "G3D-base/Vector3.h"
+#include "G3D-gfx/G3D-gfx.h"
 
 /** \brief Physics Abstraction Layer
  *
@@ -42,8 +41,12 @@ public:
      * bullet and next with PhysX also try with a AI based engine as that is
      * supposed to be a bit faster
      */
-    virtual void insertEntity(G3D::VisibleEntity *entity) = 0;
-    virtual void removeEntity(G3D::VisibleEntity *entity) = 0;
+    virtual void insertEntity(const G3D::Entity *entity) = 0;
+    virtual void removeEntity(const G3D::Entity *entity) = 0;
+
+    /** #33 needs an interface like this
+     */
+    virtual void applyForceField(const G3D::Entity *field, const G3D::Vector3 force) = 0;
 
     /** Extract the CoordinateFrame information from whatever RT datatypes the
      * underlying physics engine supports so that G3D can make the corresponding
@@ -51,10 +54,12 @@ public:
      * dynamically cast it for all possible cases to determine the type of
      * object.
      */
-    virtual G3D::CoordinateFrame getFrame(G3D::VisibleEntity *entity) = 0;
+    virtual G3D::CoordinateFrame getFrame(const G3D::Entity *entity) = 0;
+    virtual void setFrame(const G3D::Entity *entity,
+                          const G3D::CoordinateFrame frame) = 0;
 
     /** Apply a force to the object */
-    virtual void applyForce(G3D::VisibleEntity *entity, G3D::Point3 force) = 0;
+    virtual void applyForce(G3D::Entity *entity, G3D::Point3 force) = 0;
 
     /** Override this method in the implementation to update the underlying
      * physics world

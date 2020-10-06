@@ -31,8 +31,8 @@ namespace G3D {
 class PhysicsScene : public Scene {
     // TODO: make the conversion from using concrtete type to abstract type
     shared_ptr<PurePhysics> m_physics;
-    shared_ptr<VisibleEntity> m_player;
-    float m_sec = 0.f;
+    shared_ptr<Entity> m_player;
+    //shared_ptr<Entity> m_forceField;
     int numSphere = 1;
 
 public:
@@ -63,6 +63,9 @@ public:
 
     shared_ptr<PurePhysics> getPhysicsEngine();
 
-    shared_ptr<VisibleEntity> getPlayer();
+    shared_ptr<Entity> getPlayer();
+
+    void addBoxArray(String name, Vector2 grid, Vector3 position,
+                     Vector3 direction);
 };
 } // namespace G3D

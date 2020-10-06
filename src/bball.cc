@@ -16,7 +16,7 @@ int main(int argc, const char *argv[]) {
 
 namespace G3D {
 const CFrame
-BallApp::computePlayerMotionFrame(const shared_ptr<VisibleEntity> player) {
+BallApp::computePlayerMotionFrame(const shared_ptr<Entity> player) {
 
     /** The y-coordinate of both these points are more or less the same for
      * normal motion except when they jump */
@@ -71,6 +71,7 @@ void BallApp::onInit() {
     m_scene = PhysicsScene::create(m_ambientOcclusion);
     // Allowing custom Entity subclasses to be parsed from .Scene.Any files
     m_scene->registerEntitySubclass("RigidEntity", &RigidEntity::create);
+    m_scene->registerEntitySubclass("ForceFieldEntity", &ForceFieldEntity::create);
     setScene(m_scene);
 
     makeGUI();
@@ -79,6 +80,8 @@ void BallApp::onInit() {
         Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
     loadScene("Level");
     setActiveCamera(m_scene->typedEntity<Camera>("camera"));
+    m_scene->addBoxArray("box", Vector2(10, 5), Vector3(10, 0, 0), Vector3(0, 0, 1));
+
     developerWindow->sceneEditorWindow->setPreventEntitySelect(true);
     developerWindow->setVisible(false);
 }
@@ -115,7 +118,7 @@ void BallApp::onUserInput(UserInput *ui) {
     GApp::onUserInput(ui);
     ui->setPureDeltaMouse(true);
     if (!m_debugCam) {
-        shared_ptr<VisibleEntity> player = m_scene->getPlayer();
+        shared_ptr<Entity> player = m_scene->getPlayer();
         const shared_ptr<Camera> camera = m_scene->defaultCamera();
 
         /** Use this motionFrame object to compute the force required in world
@@ -148,7 +151,8 @@ void BallApp::onUserInput(UserInput *ui) {
         }
 
         /** Update the camera postion and set this to look at the ball */
-        Point3 camPos = motionFrame.vectorToWorldSpace(Point3(-10, 4, 0));
+	//TODO: remove z-value after demos
+        Point3 camPos = motionFrame.vectorToWorldSpace(Point3(-10, 4, -15));
         camera->setPosition(camPos + motionFrame.translation);
         camera->lookAt(motionFrame.translation);
     }
