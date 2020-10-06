@@ -12,6 +12,7 @@
 
 #include "ForceFieldEntity.h"
 #include "G3D-app/MarkerEntity.h"
+#include "G3D-base/Vector3.h"
 #include "RigidEntity.h"
 
 BulletPhysics::BulletPhysics()
@@ -63,7 +64,7 @@ void BulletPhysics::insertEntity(const G3D::Entity *entity) {
         object = ghost;
         // BulletPhysics::m_ghostObject = ghost;
         // TODO: fix null
-        //applyForceField(entity, nullptr);
+        // applyForceField(entity, nullptr);
     } else {
         // debugAssertM(false, "Unknown G3D entity subclass was passed");
         return;
@@ -81,18 +82,22 @@ void BulletPhysics::removeEntity(const G3D::Entity *entity) {
     // to be performed here
 }
 
-//TODO: supply the force out here
-void BulletPhysics::applyForceField(const G3D::Entity *field) {
+// TODO: supply the force out here
+void BulletPhysics::applyForceField(const G3D::Entity *field,
+                                    const G3D::Vector3 force) {
     auto iter = m_dynamicBodyMap.find(field);
     debugAssertM(iter != m_dynamicBodyMap.end(),
                  "Queried entity is not present in the map");
     auto fieldObject = iter->second;
     auto forcefield = btGhostObject::upcast(fieldObject);
 
+    btTransform trans = forcefield->getWorldTransform();
     for (int i = 0; i < forcefield->getNumOverlappingObjects(); i++) {
-	auto reactor = forcefield->getOverlappingObject(i);
-	btRigidBody *body = btRigidBody::upcast(reactor);
-	body->applyCentralForce(btVector3(0, 0, 9));
+        auto reactor = forcefield->getOverlappingObject(i);
+        btRigidBody *body = btRigidBody::upcast(reactor);
+        if (body) {
+            body->applyCentralForce(trans.getBasis() * Vector::convert(force));
+        }
     }
 }
 

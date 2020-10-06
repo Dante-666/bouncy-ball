@@ -41,13 +41,6 @@ public:
     static btCollisionShape *create(const G3D::MarkerEntity *);
 };
 
-class ForceFieldShapeFactory
-    : public CollisionFactory<btCollisionShape, G3D::ForceFieldEntity> {
-public:
-    static btCollisionShape *create(const G3D::ForceFieldEntity *);
-};
-
-
 class RigidBodyFactory
     : public CollisionFactory<btRigidBody, G3D::RigidEntity> {
 public:

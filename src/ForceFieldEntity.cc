@@ -19,7 +19,7 @@ void ForceFieldEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
     PhysicsScene *physicsScene = dynamic_cast<PhysicsScene *>(m_scene);
     if (physicsScene) {
 	//TODO: pass the force here as well
-        physicsScene->getPhysicsEngine()->applyForceField(this);
+        physicsScene->getPhysicsEngine()->applyForceField(this, m_force);
     }
 }
 
@@ -61,8 +61,7 @@ shared_ptr<Entity> ForceFieldEntity::create(
 void ForceFieldEntity::init(AnyTableReader &propertyTable) {
     // Default expectation of this entity is to cause collisions and it is a
     // part of physical simulation so set those parameters accordingly
-    Vector3 force;
-    propertyTable.getIfPresent("force", force);
+    propertyTable.getIfPresent("force", m_force);
 }
 
 void ForceFieldEntity::init(Vector3 force) {

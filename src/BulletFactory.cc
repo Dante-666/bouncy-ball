@@ -13,11 +13,7 @@
 #include "RigidEntity.h"
 
 btCollisionShape *MarkerShapeFactory::create(const G3D::MarkerEntity *marker) {
-    return new btBoxShape(btVector3(1, 1, 1));
-}
-
-btCollisionShape *ForceFieldShapeFactory::create(const G3D::ForceFieldEntity *marker) {
-    return new btBoxShape(btVector3(1, 1, 1));
+    return new btBoxShape(Vector::convert(marker->osBoxArray()[0].corner(7)));
 }
 
 btCollisionShape *RigidShapeFactory::create(const G3D::RigidEntity *rigid) {

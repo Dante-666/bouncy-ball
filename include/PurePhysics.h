@@ -12,6 +12,7 @@
 #include "G3D-app/G3D-app.h"
 #include "G3D-base/G3D-base.h"
 #include "G3D-base/Matrix3x4.h"
+#include "G3D-base/Vector3.h"
 #include "G3D-gfx/G3D-gfx.h"
 
 /** \brief Physics Abstraction Layer
@@ -45,8 +46,7 @@ public:
 
     /** #33 needs an interface like this
      */
-    virtual void applyForceField(const G3D::Entity *field) = 0;
-                                 //const G3D::VisibleEntity *reactor) = 0;
+    virtual void applyForceField(const G3D::Entity *field, const G3D::Vector3 force) = 0;
 
     /** Extract the CoordinateFrame information from whatever RT datatypes the
      * underlying physics engine supports so that G3D can make the corresponding
