@@ -17,6 +17,7 @@
 //#include <G3D/G3D.h>
 #include "PhysicsScene.h"
 #include "RigidEntity.h"
+#include "ForceFieldEntity.h"
 
 namespace G3D {
 class BallApp : public GApp {
@@ -29,7 +30,7 @@ class BallApp : public GApp {
      * follower motion
      */
     const CFrame
-    computePlayerMotionFrame(const shared_ptr<VisibleEntity> player);
+    computePlayerMotionFrame(const shared_ptr<Entity> player);
 
 protected:
     /** Called from onInit */

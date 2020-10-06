@@ -20,17 +20,10 @@ PhysicsScene::create(const shared_ptr<AmbientOcclusion> &ao) {
 }
 
 shared_ptr<Entity> PhysicsScene::insert(const shared_ptr<Entity> &entity) {
-    // handle the insertion and TODO deletion of the RigidEntity a bit
-    // differently and update the correlation map which has the information
-    const shared_ptr<RigidEntity> &rigid =
-        dynamic_pointer_cast<RigidEntity>(entity);
-
-    if (notNull(rigid)) {
-        m_physics->insertEntity(rigid.get());
-        if (rigid->name() == "player") {
-            m_player = rigid;
-            m_playerMotion = rigid->frame();
-        }
+    m_physics->insertEntity(entity.get());
+    if (entity->name() == "player") {
+        m_player = entity;
+        m_playerMotion = entity->frame();
     }
     Scene::insert(entity);
     return entity;
@@ -42,29 +35,7 @@ void PhysicsScene::onSimulation(SimTime deltaTime) {
     // TODO: update this to drop 1 ball every second
     if (!isNaN(deltaTime) && !(deltaTime == 0.0)) {
         m_physics->simulate(deltaTime);
-        m_sec += deltaTime;
     }
-
-    /*if (m_sec > 5.f && m_time < 16.f) {
-        m_sec = 0.f;
-        String name = "rigid" + String(numSphere++);
-        Scene::LoadOptions options;
-        Any anyDef = Any::parse(STR(RigidEntity {
-            model = "playerModel";
-            frame = CFrame::fromXYZYPRDegrees(2, 5, 0, 0, 0, 0);
-            mass = 1.0;
-            collisionShape = "SPHERE";
-            shape = Sphere(1.0);
-        }));
-        AnyTableReader propertyTable(anyDef);
-        shared_ptr<Entity> entity = RigidEntity::create(
-            name, this, propertyTable, m_modelTable, options);
-        insert(entity);
-    }*/
-
-    /*if (m_time > 10.f) {
-        remove(m_player);
-    }*/
 
     // This method needs to be called so that we can have objects updating
     // themselves by overriding the onSimulation methods defined within them,
@@ -75,6 +46,29 @@ void PhysicsScene::onSimulation(SimTime deltaTime) {
 
 shared_ptr<PurePhysics> PhysicsScene::getPhysicsEngine() { return m_physics; }
 
-shared_ptr<VisibleEntity> PhysicsScene::getPlayer() { return m_player; }
+shared_ptr<Entity> PhysicsScene::getPlayer() { return m_player; }
+
+void PhysicsScene::addBoxArray(String name, Vector2 grid, Vector3 position,
+                               Vector3 direction) {
+    Scene::LoadOptions options;
+    for (int j = 0; j < grid.y; j++) {
+        for (int i = 0; i < grid.x; i++) {
+            Any box(Any::TABLE, "RigidEntity");
+            box["model"] = "boxModel";
+            box["frame"] = CFrame::fromXYZYPRDegrees(position.x + i * (2 + 0.1),
+                                                     position.y + j * (2 + 0.1),
+                                                     0, 0, 0, 0);
+            box["mass"] = 0.125;
+            box["collisionShape"] = "BOX";
+            box["shape"] = Box(Point3(-1, -1, -1), Point3(1, 1, 1));
+            AnyTableReader propertyTable(box);
+            auto sz = m_modelTable.size();
+            shared_ptr<Entity> entity =
+                RigidEntity::create(name + String(std::to_string(numSphere++)),
+                                    this, propertyTable, m_modelTable, options);
+            insert(entity);
+        }
+    }
+}
 
 } // namespace G3D

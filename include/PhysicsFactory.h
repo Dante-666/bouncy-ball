@@ -9,17 +9,15 @@
  */
 #pragma once
 
-#include "G3D-app/VisibleEntity.h"
-
 /**
  * This is supposed to be a pure virtual class in which people must be able to
  * adda collisionshape and should have no ties with the physics engine itself.
  * The moment you make that, it should be done in a subclass called
  * BulletFactory let's say. The typename is the EngineObject which one wishes
  * to create */
-template <typename EO> class CollisionFactory {
+template <typename EO, typename GO> class CollisionFactory {
 public:
-    static EO *create(G3D::VisibleEntity *);
+    static EO *create(const GO *);
 };
 
 /**
