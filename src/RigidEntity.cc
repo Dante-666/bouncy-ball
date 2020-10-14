@@ -16,7 +16,7 @@ namespace G3D {
 RigidEntity::RigidEntity() : VisibleEntity(){};
 
 void RigidEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
-    if (!this->canChange())
+    if (!this->canChange() || isBeingEdited)
         return;
     PhysicsScene *physicsScene = dynamic_cast<PhysicsScene *>(m_scene);
     if (physicsScene) {

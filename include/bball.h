@@ -14,15 +14,16 @@
 #include "G3D-base/G3D-base.h"
 #include "G3D-gfx/G3D-gfx.h"
 
-//#include <G3D/G3D.h>
 #include "PhysicsScene.h"
 #include "RigidEntity.h"
 #include "ForceFieldEntity.h"
+#include "PSceneEditorWindow.h"
 
 namespace G3D {
 class BallApp : public GApp {
     shared_ptr<PhysicsScene> m_scene;
     bool m_debugCam = false;
+    bool m_editMode = false;
     bool m_isPlayerMoving = false;
 
     /** This is needed for a lot of things like calculating the heading and

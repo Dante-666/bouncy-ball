@@ -29,6 +29,7 @@ public:
     Shape::Type m_collisionShape;
     shared_ptr<Shape> m_shape;
     float m_rollingFriction = 0.f;
+    bool isBeingEdited = false;
 
     RigidEntity();
 

@@ -50,7 +50,13 @@ BallApp::computePlayerMotionFrame(const shared_ptr<Entity> player) {
 BallApp::BallApp(const GApp::Settings &settings) : GApp(settings) {}
 
 void BallApp::onInit() {
-    GApp::onInit();
+    // create screen capture after data directory is set and opengl initialized
+    const shared_ptr<GFont> &devFont = GFont::fromFile(
+        System::findDataFile(m_settings.developerToolsFontName));
+    const shared_ptr<GuiTheme> &devTheme = GuiTheme::fromFile(
+        System::findDataFile(m_settings.developerToolsThemeName), devFont);
+    auto sc = screenCapture();
+    sc = new ScreenCapture(devTheme, this);
 
     m_gbufferSpecification.encoding[GBuffer::Field::DEPTH_AND_STENCIL] =
         ImageFormat::DEPTH32();
@@ -67,12 +73,37 @@ void BallApp::onInit() {
     // For higher-quality screenshots:
     // developerWindow->videoRecordDialog->setScreenShotFormat("PNG");
     // developerWindow->videoRecordDialog->setCaptureGui(false);
-
+    if (m_settings.useDeveloperTools) {
+        // For now pass the nullptr
+        createDeveloperHUD();
+    }
+    debugAssert(notNull(m_ambientOcclusion));
     m_scene = PhysicsScene::create(m_ambientOcclusion);
     // Allowing custom Entity subclasses to be parsed from .Scene.Any files
     m_scene->registerEntitySubclass("RigidEntity", &RigidEntity::create);
-    m_scene->registerEntitySubclass("ForceFieldEntity", &ForceFieldEntity::create);
+    m_scene->registerEntitySubclass("ForceFieldEntity",
+                                    &ForceFieldEntity::create);
     setScene(m_scene);
+
+    // Detect scene files in additional data directories.
+    if (!dataDirsAddedToScene) {
+        Array<String> additionalDataDirs = {dataDir};
+        for (const String &s : dataDirs) {
+            additionalDataDirs.append(s);
+        }
+        scene()->appendSceneSearchPaths(additionalDataDirs);
+        dataDirsAddedToScene = true;
+    }
+
+    const shared_ptr<GFont> &arialFont =
+        GFont::fromFile(System::findDataFile("arial.fnt"));
+    const shared_ptr<GuiTheme> &theme =
+        GuiTheme::fromFile(System::findDataFile("osx-10.7.gtm"), arialFont);
+    developerWindow->sceneEditorWindow =
+        PhysicsSceneEditorWindow::create(this, m_scene, theme);
+    // Add some offset to y-height
+    auto pos = developerWindow->cameraControlWindow->rect();
+    developerWindow->sceneEditorWindow->moveTo(pos.x0y1() + Vector2(0, 15));
 
     makeGUI();
 
@@ -80,9 +111,10 @@ void BallApp::onInit() {
         Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
     loadScene("Level");
     setActiveCamera(m_scene->typedEntity<Camera>("camera"));
-    m_scene->addBoxArray("box", Vector2(10, 5), Vector3(10, 0, 0), Vector3(0, 0, 1));
+    /*m_scene->addBoxArray("box", Vector2(10, 5), Vector3(10, 2, 0),
+                         Vector3(0, 0, 1));*/
 
-    developerWindow->sceneEditorWindow->setPreventEntitySelect(true);
+    developerWindow->sceneEditorWindow->setPreventEntitySelect(false);
     developerWindow->setVisible(false);
 }
 
@@ -116,7 +148,7 @@ bool BallApp::onEvent(const GEvent &event) {
 
 void BallApp::onUserInput(UserInput *ui) {
     GApp::onUserInput(ui);
-    ui->setPureDeltaMouse(true);
+    ui->setPureDeltaMouse(m_editMode);
     if (!m_debugCam) {
         shared_ptr<Entity> player = m_scene->getPlayer();
         const shared_ptr<Camera> camera = m_scene->defaultCamera();
@@ -129,6 +161,13 @@ void BallApp::onUserInput(UserInput *ui) {
             motionFrame.vectorToWorldSpace(Point3(-2.5, 0, 0));
         Point3 leftForce = motionFrame.vectorToWorldSpace(Point3(0, 0, -1.5));
         Point3 rightForce = motionFrame.vectorToWorldSpace(Point3(0, 0, 1.5));
+
+        if (ui->keyDown(GKey('e'))) {
+            auto edit = !(m_scene->editing());
+            m_scene->setEditing(edit);
+            auto isVisible = !(developerWindow->sceneEditorWindow->visible());
+            developerWindow->sceneEditorWindow->setVisible(isVisible);
+        }
 
         /** Cannot move forward and reverse at the same time and give priority
          * to forward motion */
@@ -151,7 +190,7 @@ void BallApp::onUserInput(UserInput *ui) {
         }
 
         /** Update the camera postion and set this to look at the ball */
-	//TODO: remove z-value after demos
+        // TODO: remove z-value after demos
         Point3 camPos = motionFrame.vectorToWorldSpace(Point3(-10, 4, -15));
         camera->setPosition(camPos + motionFrame.translation);
         camera->lookAt(motionFrame.translation);
