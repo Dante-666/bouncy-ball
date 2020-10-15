@@ -118,7 +118,20 @@ G3D::CoordinateFrame BulletPhysics::getFrame(const G3D::Entity *entity) {
     return Frame::convert(trans);
 }
 void BulletPhysics::setFrame(const G3D::Entity *entity,
-                             const G3D::CoordinateFrame frame) {}
+                             const G3D::CoordinateFrame frame) {
+    auto iter = m_dynamicBodyMap.find(entity);
+    debugAssertM(iter != m_dynamicBodyMap.end(),
+                 "Queried entity is not present in the map");
+    auto collisionObject = iter->second;
+    btRigidBody *rigidBody = btRigidBody::upcast(collisionObject);
+
+    btTransform trans = Frame::convert(frame);
+    if (rigidBody && rigidBody->getMotionState()) {
+        rigidBody->getMotionState()->setWorldTransform(trans);
+    } else {
+        collisionObject->setWorldTransform(trans);
+    }
+}
 
 void BulletPhysics::applyForce(G3D::Entity *entity, G3D::Point3 force) {
     auto iter = m_dynamicBodyMap.find(entity);

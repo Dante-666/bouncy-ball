@@ -24,6 +24,15 @@ void RigidEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
     }
 }
 
+const void RigidEntity::updatePhysicsFrame() {//const CFrame &frame) {
+    if (isBeingEdited)
+        return;
+    PhysicsScene *physicsScene = dynamic_cast<PhysicsScene *>(m_scene);
+    if (physicsScene) {
+        physicsScene->getPhysicsEngine()->setFrame(this, this->frame());
+    }
+}
+
 shared_ptr<Entity> RigidEntity::create(const String &name, Scene *scene,
                                        AnyTableReader &propertyTable,
                                        const ModelTable &modelTable,
@@ -87,7 +96,7 @@ void RigidEntity::init(AnyTableReader &propertyTable) {
     case Shape::Type::BOX: {
         Box box;
         propertyTable.getIfPresent("shape", box);
-	auto vol = box.volume();
+        auto vol = box.volume();
         m_shape = createShared<BoxShape>(box);
     } break;
     case Shape::Type::CYLINDER: {

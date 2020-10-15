@@ -79,7 +79,7 @@
 	    ];
 	    color = Color3(1.0, 0, 0);
 	    canChange = false;
-	    force = Vector3(0, 0, 10);
+	    force = Vector3(0, 0, 4);
 	};
 
 	/*box = RigidEntity {

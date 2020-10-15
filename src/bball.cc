@@ -111,8 +111,8 @@ void BallApp::onInit() {
         Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
     loadScene("Level");
     setActiveCamera(m_scene->typedEntity<Camera>("camera"));
-    /*m_scene->addBoxArray("box", Vector2(10, 5), Vector3(10, 2, 0),
-                         Vector3(0, 0, 1));*/
+    m_scene->addBoxArray("box", Vector2(10, 5), Vector3(10, 2, 0),
+                         Vector3(0, 0, 1));
 
     developerWindow->sceneEditorWindow->setPreventEntitySelect(false);
     developerWindow->setVisible(false);
