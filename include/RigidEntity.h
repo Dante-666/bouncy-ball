@@ -35,7 +35,7 @@ public:
 
     /** update the pose of object here by querying the physics engine */
     virtual void onSimulation(SimTime absoluteTime, SimTime deltaTime) override;
-    const void updatePhysicsFrame();//const CFrame &frame);
+    const void reconstructRigidBody();//const CFrame &frame);
 
     /** For deserialization from Any / loading from file */
     static shared_ptr<Entity> create(const String &name, Scene *scene,

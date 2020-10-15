@@ -117,20 +117,23 @@ G3D::CoordinateFrame BulletPhysics::getFrame(const G3D::Entity *entity) {
 
     return Frame::convert(trans);
 }
-void BulletPhysics::setFrame(const G3D::Entity *entity,
-                             const G3D::CoordinateFrame frame) {
+void BulletPhysics::reconstructRigidBody(const G3D::Entity *entity) {
     auto iter = m_dynamicBodyMap.find(entity);
     debugAssertM(iter != m_dynamicBodyMap.end(),
                  "Queried entity is not present in the map");
     auto collisionObject = iter->second;
     btRigidBody *rigidBody = btRigidBody::upcast(collisionObject);
 
-    btTransform trans = Frame::convert(frame);
-    if (rigidBody && rigidBody->getMotionState()) {
-        rigidBody->getMotionState()->setWorldTransform(trans);
-    } else {
-        collisionObject->setWorldTransform(trans);
-    }
+    m_dynamicsWorld->removeRigidBody(rigidBody);
+    if (auto rigid = dynamic_cast<const G3D::RigidEntity *>(entity)) {
+        btRigidBody *body = RigidBodyFactory::create(rigid);
+        m_dynamicsWorld->addRigidBody(body);
+	iter->second = body;
+    } 
+    // delete this pointer
+    delete rigidBody;
+    //m_dynamicBodyMap.insert(std::pair(entity, object));
+
 }
 
 void BulletPhysics::applyForce(G3D::Entity *entity, G3D::Point3 force) {
