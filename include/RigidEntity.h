@@ -29,28 +29,28 @@ public:
     Shape::Type m_collisionShape;
     shared_ptr<Shape> m_shape;
     float m_rollingFriction = 0.f;
+    bool isBeingEdited = false;
 
     RigidEntity();
 
     /** update the pose of object here by querying the physics engine */
     virtual void onSimulation(SimTime absoluteTime, SimTime deltaTime) override;
+    const void updatePhysicsFrame();//const CFrame &frame);
 
     /** For deserialization from Any / loading from file */
     static shared_ptr<Entity> create(const String &name, Scene *scene,
                                      AnyTableReader &propertyTable,
                                      const ModelTable &modelTable,
                                      const Scene::LoadOptions &loadOptions);
-
     /** For programmatic construction at runtime */
     static shared_ptr<Entity> create(const String &name, Scene *scene,
                                      const CFrame &position,
                                      const shared_ptr<Model> &model);
 
     void init(AnyTableReader &propertyTable);
-
-    // TODO: add more default shapes and sizes
     void init(Shape::Type collisionShape = Shape::Type::SPHERE);
 
     const Shape::Type getShapeTypeFromString(const String shape);
+
 };
 } // namespace G3D

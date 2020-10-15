@@ -50,6 +50,8 @@ public:
     virtual shared_ptr<Entity>
     insert(const shared_ptr<Entity> &entity) override;
 
+    virtual Any load(const String& sceneName, const LoadOptions& loadOptions = LoadOptions()) override;
+
     /** Remove all original Scene objects alone with the custom Physics objects
      */
     virtual void clear() override;

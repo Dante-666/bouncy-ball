@@ -29,6 +29,12 @@ shared_ptr<Entity> PhysicsScene::insert(const shared_ptr<Entity> &entity) {
     return entity;
 }
 
+Any PhysicsScene::load(const String &sceneName,
+                       const LoadOptions &loadOptions) {
+    auto any = Scene::load(sceneName);
+    return any;
+}
+
 void PhysicsScene::clear() { Scene::clear(); };
 
 void PhysicsScene::onSimulation(SimTime deltaTime) {

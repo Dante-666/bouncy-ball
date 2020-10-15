@@ -58,10 +58,10 @@
             type = "SPOT"; 
         };
 
-        /*player = VisibleEntity {
+        player1 = VisibleEntity {
             model = "playerModel";
-            frame = Point3(0, 2, 0); 
-        };*/
+            frame = Point3(0, 5, 0); 
+        };
 
 	player = RigidEntity {
 	    model = "playerModel";
@@ -79,7 +79,7 @@
 	    ];
 	    color = Color3(1.0, 0, 0);
 	    canChange = false;
-	    force = Vector3(0, 0, 10);
+	    force = Vector3(0, 0, 4);
 	};
 
 	/*box = RigidEntity {
