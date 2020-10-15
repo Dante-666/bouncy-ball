@@ -66,12 +66,13 @@ bool EntitySelectWidget::onEvent(const GEvent &event) {
             if (rigid) {
                 if (m_lastSelectedRigidEntity) {
                     m_lastSelectedRigidEntity->isBeingEdited = false;
+		    m_lastSelectedRigidEntity->reconstructRigidBody();//m_manipulator->frame());
                 }
                 rigid->isBeingEdited = true;
 		m_lastSelectedRigidEntity = rigid;
             } else if (m_lastSelectedRigidEntity) {
                 m_lastSelectedRigidEntity->isBeingEdited = false;
-		m_lastSelectedRigidEntity->updatePhysicsFrame();//m_manipulator->frame());
+		m_lastSelectedRigidEntity->reconstructRigidBody();//m_manipulator->frame());
                 m_lastSelectedRigidEntity = nullptr;
             }
             m_sceneEditor->selectEntity(newSelection);

@@ -46,7 +46,8 @@ public:
 
     /** #33 needs an interface like this
      */
-    virtual void applyForceField(const G3D::Entity *field, const G3D::Vector3 force) = 0;
+    virtual void applyForceField(const G3D::Entity *field,
+                                 const G3D::Vector3 force) = 0;
 
     /** Extract the CoordinateFrame information from whatever RT datatypes the
      * underlying physics engine supports so that G3D can make the corresponding
@@ -55,8 +56,9 @@ public:
      * object.
      */
     virtual G3D::CoordinateFrame getFrame(const G3D::Entity *entity) = 0;
-    virtual void setFrame(const G3D::Entity *entity,
-                          const G3D::CoordinateFrame frame) = 0;
+    // TODO: to be solved as a wider problem of object management after
+    // behavioral entity is in action
+    virtual void reconstructRigidBody(const G3D::Entity *entity) = 0;
 
     /** Apply a force to the object */
     virtual void applyForce(G3D::Entity *entity, G3D::Point3 force) = 0;

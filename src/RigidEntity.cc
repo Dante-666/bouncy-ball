@@ -24,12 +24,12 @@ void RigidEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
     }
 }
 
-const void RigidEntity::updatePhysicsFrame() {//const CFrame &frame) {
+const void RigidEntity::reconstructRigidBody() {//const CFrame &frame) {
     if (isBeingEdited)
         return;
     PhysicsScene *physicsScene = dynamic_cast<PhysicsScene *>(m_scene);
     if (physicsScene) {
-        physicsScene->getPhysicsEngine()->setFrame(this, this->frame());
+        physicsScene->getPhysicsEngine()->reconstructRigidBody(this);//, this->frame());
     }
 }
 

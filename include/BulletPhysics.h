@@ -72,13 +72,12 @@ public:
 
     virtual void removeEntity(const G3D::Entity *entity) override;
 
-    virtual void applyForceField(const G3D::Entity *field, const G3D::Vector3 force) override;
-   // , const G3D::VisibleEntity *reactor) override;
+    virtual void applyForceField(const G3D::Entity *field,
+                                 const G3D::Vector3 force) override;
 
     virtual G3D::CoordinateFrame getFrame(const G3D::Entity *entity) override;
 
-    virtual void setFrame(const G3D::Entity *entity,
-                          const G3D::CoordinateFrame frame) override;
+    virtual void reconstructRigidBody(const G3D::Entity *entity) override;
 
     virtual void applyForce(G3D::Entity *entity, G3D::Point3 force) override;
 
