@@ -14,8 +14,10 @@
 #include "G3D-base/G3D-base.h"
 #include "G3D-gfx/G3D-gfx.h"
 
-//#include <G3D/G3D.h>
 #include "PhysicsScene.h"
+#include "GhostEntity.h"
+#include "PhysicsEntity.h"
+//TODO:Remove this
 #include "RigidEntity.h"
 #include "ForceFieldEntity.h"
 

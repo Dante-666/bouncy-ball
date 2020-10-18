@@ -24,29 +24,51 @@
 #include "G3D-base/Vector3.h"
 
 #include "ForceFieldEntity.h"
+#include "PhysicsEntity.h"
+#include "GhostEntity.h"
 #include "PhysicsFactory.h"
 #include "RigidEntity.h"
 
 /**
  * Implementation for bullet */
+class CollisionShapeFactory
+    : public CollisionFactory<btCollisionShape, G3D::PhysicsEntity> {
+public:
+    static btCollisionShape *create(const G3D::AShape *);
+};
+
+// TODO:Combine
 class RigidShapeFactory
     : public CollisionFactory<btCollisionShape, G3D::RigidEntity> {
 public:
     static btCollisionShape *create(const G3D::RigidEntity *);
 };
-
+// TODO:Combine
 class MarkerShapeFactory
     : public CollisionFactory<btCollisionShape, G3D::MarkerEntity> {
 public:
     static btCollisionShape *create(const G3D::MarkerEntity *);
 };
 
+class PhysicsBodyFactory
+    : public CollisionFactory<btRigidBody, G3D::PhysicsEntity> {
+public:
+    static btRigidBody *create(const G3D::PhysicsEntity *);
+};
+
+class Ghost2ObjectFactory
+    : public CollisionFactory<btGhostObject, G3D::GhostEntity> {
+public:
+    static btGhostObject *create(const G3D::GhostEntity *);
+};
+
+// TODO: REMOVE
 class RigidBodyFactory
     : public CollisionFactory<btRigidBody, G3D::RigidEntity> {
 public:
     static btRigidBody *create(const G3D::RigidEntity *);
 };
-
+// TODO: REMOVE
 class GhostObjectFactory
     : public CollisionFactory<btGhostObject, G3D::MarkerEntity> {
 public:
