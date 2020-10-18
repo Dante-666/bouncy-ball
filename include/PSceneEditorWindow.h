@@ -12,8 +12,6 @@
 
 #include "G3D/G3D.h"
 
-#include "RigidEntity.h"
-
 class PhysicsSceneEditorWindow : public SceneEditorWindow {
 protected:
     friend class EntitySelectWidget;
@@ -21,7 +19,7 @@ protected:
                              shared_ptr<GuiTheme> theme);
 
 public:
-    virtual void onSelectEntity() override;
+    //virtual void onSelectEntity() override;
     static shared_ptr<PhysicsSceneEditorWindow>
     create(GApp *app, shared_ptr<Scene> scene, shared_ptr<GuiTheme> theme);
 
@@ -40,7 +38,7 @@ public:
 namespace {
 class EntitySelectWidget : public Widget {
 protected:
-    shared_ptr<RigidEntity> m_lastSelectedRigidEntity;
+    //shared_ptr<RigidEntity> m_lastSelectedRigidEntity;
     PhysicsSceneEditorWindow *m_sceneEditor;
     mutable EventCoordinateMapper m_mapper;
 

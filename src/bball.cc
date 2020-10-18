@@ -82,10 +82,7 @@ void BallApp::onInit() {
     // Allowing custom Entity subclasses to be parsed from .Scene.Any files
     m_scene->registerEntitySubclass("PhysicsEntity", &PhysicsEntity::create);
     m_scene->registerEntitySubclass("GhostEntity", &GhostEntity::create);
-    // TODO: Remove these two when PhysicsEntity becomes fully reliant on
-    // AnyFile creation/loading
-    m_scene->registerEntitySubclass("RigidEntity", &RigidEntity::create);
-    m_scene->registerEntitySubclass("ForceFieldEntity", &ForceFieldEntity::create);
+    
     setScene(m_scene);
 
     // Detect scene files in additional data directories.
@@ -114,8 +111,8 @@ void BallApp::onInit() {
         Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
     loadScene("Level");
     setActiveCamera(m_scene->typedEntity<Camera>("camera"));
-    //m_scene->addBoxArray("box", Vector2(10, 5), Vector3(10, 0, 0),
-    //                     Vector3(0, 0, 1));
+    m_scene->addBoxArray("box", Vector2(10, 5), Vector3(10, 0, 0),
+                         Vector3(0, 0, 1));
 
     developerWindow->sceneEditorWindow->setPreventEntitySelect(false);
     developerWindow->setVisible(false);

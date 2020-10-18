@@ -9,11 +9,11 @@
  */
 
 #include "physics/BulletFactory.h"
-#include "G3D-app/MarkerEntity.h"
 #include "G3D-app/Shape.h"
+
 #include "GhostEntity.h"
 #include "PhysicsEntity.h"
-#include "RigidEntity.h"
+
 #include "behavior/AShape.h"
 #include "behavior/PChain.h"
 #include "behavior/Solid.h"
@@ -82,82 +82,6 @@ btCollisionShape *CollisionShapeFactory::create(const G3D::AShape *ashape) {
     return new btSphereShape(1.f);
 }
 
-btCollisionShape *MarkerShapeFactory::create(const G3D::MarkerEntity *marker) {
-    return new btBoxShape(Vector::convert(marker->osBoxArray()[0].corner(7)));
-}
-
-btCollisionShape *RigidShapeFactory::create(const G3D::RigidEntity *rigid) {
-    auto type = rigid->m_shape->type();
-    shared_ptr<G3D::Shape> shape_ = rigid->m_shape;
-    switch (type) {
-    case G3D::Shape::Type::SPHERE: {
-        shared_ptr<G3D::SphereShape> shape =
-            dynamic_pointer_cast<G3D::SphereShape>(rigid->m_shape);
-        float area = shape->area();
-        btScalar radius = sqrt(area / (4 * M_PI));
-
-        return new btSphereShape(radius);
-    } break;
-    case G3D::Shape::Type::BOX: {
-        shared_ptr<G3D::BoxShape> shape =
-            dynamic_pointer_cast<G3D::BoxShape>(rigid->m_shape);
-        G3D::Vector3 corner = shape->box().corner(7);
-
-        return new btBoxShape(Vector::convert(corner));
-    } break;
-    case G3D::Shape::Type::CYLINDER: {
-        shared_ptr<G3D::CylinderShape> shape =
-            dynamic_pointer_cast<G3D::CylinderShape>(rigid->m_shape);
-        float area = shape->area();
-
-        return new btCylinderShape(btVector3(1, 1, 1));
-    } break;
-    case G3D::Shape::Type::PLANE: {
-        shared_ptr<G3D::PlaneShape> shape =
-            dynamic_pointer_cast<G3D::PlaneShape>(rigid->m_shape);
-        btVector3 pNormal = btVector3(0, 1, 0);
-        btScalar pConst = 100;
-        return new btStaticPlaneShape(pNormal, pConst);
-
-    } break;
-        /*
-case G3D::Shape::Type::CAPSULE: {
-shared_ptr<G3D::PlaneShape> shape =
-  dynamic_pointer_cast<G3D::PlaneShape>(shape);
-float area = shape->area();
-btScalar radius = sqrt(area / (4 * M_PI));
-
-return new btSphereShape(radius);
-
-} break;*/
-    case G3D::Shape::Type::MESH: {
-        shared_ptr<G3D::MeshShape> shape =
-            dynamic_pointer_cast<G3D::MeshShape>(rigid->m_shape);
-        // TODO: this creates a problem #14
-        // G3D::AABox box = shape->boundingAABox();
-
-        btIndexedMesh *mesh = new btIndexedMesh();
-        mesh->m_numTriangles = shape->indexArray().size() / 3;
-        mesh->m_triangleIndexBase =
-            (const unsigned char *)shape->indexArray().getCArray();
-        mesh->m_triangleIndexStride = 3 * 4;
-        mesh->m_numVertices = shape->vertexArray().size();
-        mesh->m_vertexBase =
-            (const unsigned char *)shape->vertexArray().getCArray();
-        mesh->m_vertexStride = 3 * 4;
-
-        btTriangleIndexVertexArray *vertexArray =
-            new btTriangleIndexVertexArray();
-        vertexArray->addIndexedMesh(*mesh);
-        return new btBvhTriangleMeshShape(vertexArray, false);
-    } break;
-
-    default:
-        debugAssertM(false, "Type not implemented yet");
-    }
-    return new btSphereShape(1.f);
-}
-
 btRigidBody *PhysicsBodyFactory::create(const G3D::PhysicsEntity *pEntity) {
     const G3D::PropertyChain *link =
         dynamic_cast<const G3D::PropertyChain *>(pEntity);
@@ -208,7 +132,7 @@ btRigidBody *PhysicsBodyFactory::create(const G3D::PhysicsEntity *pEntity) {
     return body;
 }
 
-btGhostObject *Ghost2ObjectFactory::create(const G3D::GhostEntity *gEntity) {
+btGhostObject *GhostObjectFactory::create(const G3D::GhostEntity *gEntity) {
     btGhostObject *ghost = new btGhostObject();
     const G3D::PropertyChain *link =
         dynamic_cast<const G3D::PropertyChain *>(gEntity);
@@ -224,46 +148,6 @@ btGhostObject *Ghost2ObjectFactory::create(const G3D::GhostEntity *gEntity) {
     }
     ghost->setCollisionShape(colShape);
     ghost->setWorldTransform(Frame::convert(gEntity->frame()));
-    ghost->setCollisionFlags(
-        btCollisionObject::CollisionFlags::CF_STATIC_OBJECT |
-        btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE);
-
-    return ghost;
-}
-
-btRigidBody *RigidBodyFactory::create(const G3D::RigidEntity *rigid) {
-    btCollisionShape *colShape = RigidShapeFactory::create(rigid);
-
-    btScalar mass = rigid->mass();
-
-    // rigidbody is dynamic if and only if mass is non zero, otherwise
-    // static
-    bool isDynamic = (mass != 0.f) || rigid->canChange();
-
-    // TODO: read from Any file as well
-    btVector3 localInertia = btVector3(0, 0, 0);
-    if (isDynamic)
-        colShape->calculateLocalInertia(mass, localInertia);
-
-    // using motionstate is recommended, it provides interpolation
-    // capabilities, and only synchronizes 'active' objects
-    btDefaultMotionState *motionState =
-        new btDefaultMotionState(Frame::convert(rigid->frame()));
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, colShape,
-                                                    localInertia);
-
-    btRigidBody *body = new btRigidBody(rbInfo);
-
-    // Decorate the rigid body using G3D parameters
-    body->setRollingFriction(rigid->m_rollingFriction);
-
-    return body;
-}
-
-btGhostObject *GhostObjectFactory::create(const G3D::MarkerEntity *marker) {
-    btGhostObject *ghost = new btGhostObject();
-    ghost->setCollisionShape(MarkerShapeFactory::create(marker));
-    ghost->setWorldTransform(Frame::convert(marker->frame()));
     ghost->setCollisionFlags(
         btCollisionObject::CollisionFlags::CF_STATIC_OBJECT |
         btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE);

@@ -13,9 +13,6 @@
 #include "GhostEntity.h"
 #include "PhysicsEntity.h"
 
-#include "ForceFieldEntity.h"
-#include "RigidEntity.h"
-#include "G3D-app/MarkerEntity.h"
 #include "G3D-base/Vector3.h"
 
 //#include "behavior/Behavior.h"
@@ -51,39 +48,15 @@ void BulletPhysics::insertEntity(const G3D::Entity *entity) {
         m_dynamicsWorld->addRigidBody(body);
         object = body;
     } else if (auto gEntity = dynamic_cast<const G3D::GhostEntity *>(entity)) {
-        btGhostObject *ghost = Ghost2ObjectFactory::create(gEntity);
+        btGhostObject *ghost = GhostObjectFactory::create(gEntity);
         m_dynamicsWorld->addCollisionObject(ghost,
                                             btBroadphaseProxy::StaticFilter);
         m_dynamicsWorld->getBroadphase()
             ->getOverlappingPairCache()
             ->setInternalGhostPairCallback(new btGhostPairCallback());
         object = ghost;
-    } else if (auto rigid = dynamic_cast<const G3D::RigidEntity *>(entity)) {
-        btRigidBody *body = RigidBodyFactory::create(rigid);
-        m_dynamicsWorld->addRigidBody(body);
-        object = body;
-    } else if (auto marker = dynamic_cast<const G3D::MarkerEntity *>(entity)) {
-        btGhostObject *ghost = GhostObjectFactory::create(marker);
-        m_dynamicsWorld->addCollisionObject(ghost,
-                                            btBroadphaseProxy::StaticFilter);
-        m_dynamicsWorld->getBroadphase()
-            ->getOverlappingPairCache()
-            ->setInternalGhostPairCallback(new btGhostPairCallback());
-        object = ghost;
-    } else if (auto forceF =
-                   dynamic_cast<const G3D::ForceFieldEntity *>(entity)) {
-        btGhostObject *ghost = GhostObjectFactory::create(forceF);
-        m_dynamicsWorld->addCollisionObject(ghost,
-                                            btBroadphaseProxy::StaticFilter);
-        m_dynamicsWorld->getBroadphase()
-            ->getOverlappingPairCache()
-            ->setInternalGhostPairCallback(new btGhostPairCallback());
-        object = ghost;
-        // BulletPhysics::m_ghostObject = ghost;
-        // TODO: fix null
-        // applyForceField(entity, nullptr);
     } else {
-        // debugAssertM(false, "Unknown G3D entity subclass was passed");
+        //debugAssertM(false, "Unknown G3D entity subclass was passed");
         return;
     }
 
@@ -142,8 +115,8 @@ void BulletPhysics::reconstructRigidBody(const G3D::Entity *entity) {
     btRigidBody *rigidBody = btRigidBody::upcast(collisionObject);
 
     m_dynamicsWorld->removeRigidBody(rigidBody);
-    if (auto rigid = dynamic_cast<const G3D::RigidEntity *>(entity)) {
-        btRigidBody *body = RigidBodyFactory::create(rigid);
+    if (auto rigid = dynamic_cast<const G3D::PhysicsEntity *>(entity)) {
+        btRigidBody *body = PhysicsBodyFactory::create(rigid);
         m_dynamicsWorld->addRigidBody(body);
 	iter->second = body;
     } 

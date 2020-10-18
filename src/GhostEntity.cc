@@ -18,6 +18,12 @@ void GhostEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
 
     // TODO: apply all behaviors here
     this->apply(this);
+    /*void ForceFieldEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
+    PhysicsScene *physicsScene = dynamic_cast<PhysicsScene *>(m_scene);
+    if (physicsScene) {
+	//TODO: pass the force here as well
+        physicsScene->getPhysicsEngine()->applyForceField(this, m_force);
+    }*/
 }
 
 shared_ptr<Entity> GhostEntity::create(
