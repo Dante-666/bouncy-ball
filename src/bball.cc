@@ -119,8 +119,8 @@ void BallApp::onInit() {
 
     loadScene("Level");
     setActiveCamera(m_scene->typedEntity<Camera>("camera"));
-    m_scene->addBoxArray("box", Vector2(10, 5), Vector3(10, 0, 0),
-                         Vector3(0, 0, 1));
+    //m_scene->addBoxArray("box", Vector2(10, 5), Vector3(10, 0, 0),
+    //                     Vector3(0, 0, 1));
 }
 
 void BallApp::makeGUI() {

@@ -69,5 +69,7 @@ public:
                                      const Scene::LoadOptions &loadOptions);
 
     void init(AnyTableReader &propertyTable);
+
+    virtual Any toAny(const bool forceAll) const override;
 };
 } // namespace G3D

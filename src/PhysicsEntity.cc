@@ -75,4 +75,25 @@ void PhysicsEntity::init(AnyTableReader &propertyTable) {
     this->addBehavior(new FetchPhysicsUpdate<PhysicsEntity>());
 }
 
+Any PhysicsEntity::toAny(const bool forceAll) const {
+    Any a = VisibleEntity::toAny(forceAll);
+    a.setName("PhysicsEntity");
+
+    const G3D::PropertyChain *link =
+        dynamic_cast<const G3D::PropertyChain *>(this);
+
+    while (link) {
+        if (link->getName() == "AShape") {
+            const AShape* ashape = dynamic_cast<const G3D::AShape *>(link);
+	    a.set("ashape", *ashape);
+        } else if (link->getName() == "Solid") {
+            const Solid* solid = dynamic_cast<const G3D::Solid *>(link);
+	    a.set("solid", *solid);
+        }
+        link = link->getNext();
+    }
+    // Model and pose must already have been set, so no need to change anything
+    return a;
+}
+
 } // namespace G3D
