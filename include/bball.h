@@ -17,9 +17,7 @@
 #include "PhysicsScene.h"
 #include "GhostEntity.h"
 #include "PhysicsEntity.h"
-//TODO:Remove this
-#include "RigidEntity.h"
-#include "ForceFieldEntity.h"
+
 #include "PSceneEditorWindow.h"
 
 namespace G3D {

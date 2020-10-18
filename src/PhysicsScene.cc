@@ -59,18 +59,19 @@ void PhysicsScene::addBoxArray(String name, Vector2 grid, Vector3 position,
     Scene::LoadOptions options;
     for (int j = 0; j < grid.y; j++) {
         for (int i = 0; i < grid.x; i++) {
-            Any box(Any::TABLE, "RigidEntity");
+            Any box(Any::TABLE, "PhysicsEntity");
             box["model"] = "boxModel";
             box["frame"] = CFrame::fromXYZYPRDegrees(position.x + i * (2 + 0.1),
                                                      position.y + j * (2 + 0.1),
                                                      0, 0, 0, 0);
             box["mass"] = 0.125;
-            box["collisionShape"] = "BOX";
-            box["shape"] = Box(Point3(-1, -1, -1), Point3(1, 1, 1));
-            AnyTableReader propertyTable(box);
+	    Any ashape(Any::TABLE, "AShape");
+	    ashape["box"] = Box(Point3(-1, -1, -1), Point3(1, 1, 1));
+            box["ashape"] = ashape;
+	    AnyTableReader propertyTable(box);
             auto sz = m_modelTable.size();
             shared_ptr<Entity> entity =
-                RigidEntity::create(name + String(std::to_string(numSphere++)),
+                PhysicsEntity::create(name + String(std::to_string(numSphere++)),
                                     this, propertyTable, m_modelTable, options);
             insert(entity);
         }

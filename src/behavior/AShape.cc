@@ -7,7 +7,6 @@ namespace G3D {
 
 AShape::AShape(const AShape &opq) {
     m_shape = opq.m_shape;
-    m_rollingFriction = opq.m_rollingFriction;
 }
 
 AShape::AShape(const Any &any) {
@@ -34,8 +33,6 @@ AShape::AShape(const Any &any) {
         if (r.getIfPresent("plane", plane))
             m_shape = std::make_shared<PlaneShape>(plane);
     }
-
-    r.getIfPresent("rollingFriction", m_rollingFriction);
 }
 
 Any AShape::toAny() const {
@@ -58,7 +55,6 @@ Any AShape::toAny() const {
         break;
     }
     }
-    any["rollingFriction"] = m_rollingFriction;
     return any;
 }
 

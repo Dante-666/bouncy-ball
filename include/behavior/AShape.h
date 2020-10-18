@@ -26,7 +26,6 @@ class AShape : public PropertyChain {
     // Add shapes etc.
     // TODO: Explore object construction by deriving shapes directly from Mesh.
     shared_ptr<Shape> m_shape;
-    float m_rollingFriction = 0.f;
 
 public:
     AShape() : PropertyChain() {}

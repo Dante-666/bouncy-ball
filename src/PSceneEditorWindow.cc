@@ -1,4 +1,5 @@
 #include "PSceneEditorWindow.h"
+#include "PhysicsEntity.h"
 
 /**
  Widget created by SceneEditorWindow that sits at the bottom of the event
@@ -62,19 +63,19 @@ bool EntitySelectWidget::onEvent(const GEvent &event) {
             Array<shared_ptr<Entity>>(), m_sceneEditor->getSelectionInfo());
 
         if (newSelection != m_sceneEditor->getSelectedEntity()) {
-            auto rigid = dynamic_pointer_cast<RigidEntity>(newSelection);
-            if (rigid) {
+            auto rigid = dynamic_pointer_cast<PhysicsEntity>(newSelection);
+            /*if (rigid) {
                 if (m_lastSelectedRigidEntity) {
                     m_lastSelectedRigidEntity->isBeingEdited = false;
 		    m_lastSelectedRigidEntity->reconstructRigidBody();//m_manipulator->frame());
                 }
-                rigid->isBeingEdited = true;
-		m_lastSelectedRigidEntity = rigid;
+                //rigid->isBeingEdited = true;
+		//m_lastSelectedRigidEntity = rigid;
             } else if (m_lastSelectedRigidEntity) {
                 m_lastSelectedRigidEntity->isBeingEdited = false;
 		m_lastSelectedRigidEntity->reconstructRigidBody();//m_manipulator->frame());
                 m_lastSelectedRigidEntity = nullptr;
-            }
+            }*/
             m_sceneEditor->selectEntity(newSelection);
             return true;
         }
@@ -100,7 +101,7 @@ PhysicsSceneEditorWindow::create(GApp *app, shared_ptr<Scene> scene,
     return ptr;
 }
 
-void PhysicsSceneEditorWindow::onSelectEntity() {
+/*void PhysicsSceneEditorWindow::onSelectEntity() {
     m_perEntityPane->removeAllChildren();
     if (notNull(m_selectedEntity) && !m_preventEntitySelect) {
         // Populate the GUI
@@ -119,7 +120,7 @@ void PhysicsSceneEditorWindow::onSelectEntity() {
             m_manipulator->setFrame(m_selectedEntity->frame());
         }
     }
-}
+}*/
 
 GApp *PhysicsSceneEditorWindow::getApp() { return m_app; }
 
