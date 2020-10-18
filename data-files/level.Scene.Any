@@ -1,142 +1,198 @@
-// -*- c++ -*-
-// You can extend this sample scene file format with your own fields.
-// Edit the scene parsing in Scene.cpp.
-{
-    name = "Level",
-
-    models = {
-	playerModel = ArticulatedModel::Specification {
-	    filename = "models/ball.obj";
-	};
-	boxModel = ArticulatedModel::Specification {
-	    filename = "models/box.obj";
-	};
-	cylinderModel = ArticulatedModel::Specification {
-	    filename = "models/cylinder.obj";
-	};
-	groundModel = ArticulatedModel::Specification {
-	    filename = "models/floor.obj";
-	};
-	groundModel2 = ArticulatedModel::Specification {
-	    filename = "models/floor2.obj";
-	};
-	curveGroundModel = ArticulatedModel::Specification {
-	    filename = "models/bowl.obj";
-
-	    preprocess = {
-		setTwoSided("Bowl_Sphere_ground/ground", true);
-	    };
-	};
-    };
-   
-    lightingEnvironment = LightingEnvironment {
-        environmentMap = Texture::Specification {
-            filename = "cubemap/hipshot_m9_sky/16_*.png";
-            encoding = Texture::Encoding{
-				format = "SRGB8";
-				readMultiplyFirst= 1.5;
-			};
-        };
-    };
-    
-    entities = {
+{ 
+    description = ""; 
+    entities = { 
+        camera = Camera { 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = false; 
+                farBlurRadiusFraction = 0.005; 
+                farBlurryPlaneZ = -100; 
+                farSharpPlaneZ = -40; 
+                focusPlaneZ = -10; 
+                lensRadius = 0.01; 
+                model = "ARTIST"; 
+                nearBlurRadiusFraction = 0.015; 
+                nearBlurryPlaneZ = -0.25; 
+                nearSharpPlaneZ = -1.5; 
+                reducedResolutionFactor = 1; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                antialiasingHighQuality = true; 
+                bloomRadiusFraction = 0.015; 
+                bloomStrength = 0.25; 
+                debugZoom = 1; 
+                downscaleFilter = "BILINEAR"; 
+                effectsEnabled = true; 
+                gamma = 2.2; 
+                invertX = false; 
+                invertY = false; 
+                sensitivity = 1; 
+                temporalAntialiasingEnabled = false; 
+                toneCurve = Spline { 
+                    control = ( 0, 0.1, 0.2, 0.5, 1 ); 
+                    extrapolationMode = "LINEAR"; 
+                    finalInterval = -1; 
+                    interpolationMode = "CUBIC"; 
+                    time = ( 0, 0.1, 0.2, 0.5, 1 ); 
+                }; 
+                
+                upscaleFilter = "BILINEAR"; 
+                vignetteBottomStrength = 0.05; 
+                vignetteSizeFraction = 0.17; 
+                vignetteTopStrength = 0.5; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees(0, 5, -30, -90, 0, 0 ); 
+            mass = 1; 
+            motionBlurSettings = MotionBlurSettings { 
+                enabled = true; 
+                exposureFraction = 0.75; 
+                maxBlurDiameterFraction = 0.1; 
+                numSamples = 27; 
+            }; 
+            
+            overridePixelOffset = true; 
+            projection = Projection { 
+                farPlaneZ = -400; 
+                fovDegrees = 50; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.2; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+        
+        ghost = GhostEntity { 
+            ashape = AShape { 
+                box = AABox(
+                    Vector3(-1, -1, -1 ), 
+                    Vector3(15, 3, 5 ) ); 
+                
+            }; 
+            
+            color = Color3(1, 0, 0 ); 
+            frame = CFrame::fromXYZYPRDegrees(10, 11.3501, 0, 0, 58.6578 ); 
+        }; 
+        
+        ground = PhysicsEntity { 
+            ashape = AShape { 
+            }; 
+            
+            canCauseCollisions = true; 
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, 0, 0 ); 
+            mass = 0; 
+            model = "groundModel2"; 
+            visible = true; 
+        }; 
+        
+        player = PhysicsEntity { 
+            ashape = AShape { 
+                sphere = Sphere(1 ); 
+            }; 
+            
+            canCauseCollisions = true; 
+            frame = CFrame::fromXYZYPRDegrees(28.4414, 2, 0.00200994, -0.395153, -0.0998408, 67.4519 ); 
+            mass = 0.5; 
+            model = "playerModel"; 
+            solid = Solid { 
+                phased = false; 
+                rollingFriction = 0.3; 
+            }; 
+            
+        }; 
         
         sun = Light { 
             attenuation = ( 0, 0, 1 ); 
-            bulbPower = Power3(4e+006 ); 
-            shadowsEnabled = true; 
-            canChange = false;
+            bulbPower = Power3(4e+06 ); 
+            canCauseCollisions = true; 
+            canChange = false; 
             enabled = true; 
-			shadowMapBias = 0.05;
             frame = CFrame::fromXYZYPRDegrees(-15.5767, 207.755, -41.952, -164.03, -76.7166, 76.514 ); 
+            mass = 1; 
             nearPlaneZLimit = -170; 
             producesDirectIllumination = true; 
             producesIndirectIllumination = true; 
-            shadowMapSize = Vector2int16(2048, 2048); 
-            spotHalfAngleDegrees = 5; 
             rectangular = true; 
+            shadowMapBias = 0.05; 
+            shadowMapSize = Vector2int16(2048, 2048 ); 
+            shadowsEnabled = true; 
+            spotHalfAngleDegrees = 5; 
             type = "SPOT"; 
-        };
-
-        /*player = VisibleEntity {
-            model = "playerModel";
-            frame = Point3(0, 2, 0); 
-        };*/
-
-        player = PhysicsEntity {
-            model = "playerModel";
-            frame = Point3(5, 10, 0); 
-	    mass = .5;
-	    ashape = AShape {
-		sphere = Sphere(1.0);
-	    };
-	    solid = Solid {
-		phased = false;
-		rollingFriction = 0.3;
-	    };
-        };
-
-        ground = PhysicsEntity { 
-            model = "groundModel2";
-            frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, 0, 0);
-	    visible = true;
-	    mass = 0.0;
-            canChange = false;
-	    //Supply boxes with centered dimensions and then move those around
-	    //shape = Box(Point3(-100, -1, -100), Point3(100, 1, 100));
-	    ashape = AShape {
-	    };
-	};
-
-	ghost = GhostEntity {
-	    frame = Point3(10, 5, 0);
-	    color = Color3(1, 0, 0);
-	    ashape = AShape {
-		box = Box(Point3(-1, -1, -1), Point3(15, 3, 5));
-	    };
-	};
-
-	/*box = PhysicsEntity {
-	    model = "boxModel";
-	    frame = CFrame::fromXYZYPRDegrees(16, 5, 5, 0, -90, 0);
-	    mass = .5;
-	    rollingFriction = 0.3;
-	    shape = Box(Point3(-1, -1, -1), Point3(1, 1, 1));
-	};
-
-	cylinder = PhysicsEntity {
-	    model = "cylinderModel";
-	    frame = CFrame::fromXYZYPRDegrees(16, 5, 0, 0, -90, 0);
-	    mass = .35;
-	    rollingFriction = 0.3;
-	    ashape = AShape {
-		cylinder = Cylinder {
-		    p1 = Point3(1, 0, 0);
-		    p2 = Point3(0, 0, 1);
-		    radius = 1.f;
-	    };
-	};*/
-
-        camera = Camera {
-            frame = CFrame::fromXYZYPRDegrees(0, 5, -30, -90, 0, 0);
+        }; 
         
-            depthOfFieldSettings = DepthOfFieldSettings {
-                model = "ARTIST";
-                enabled = false;
-                nearSharpPlaneZ = -1.5;
-            };
-
-            motionBlurSettings = MotionBlurSettings {
-                enabled = true;
-            };
-
-            projection = Projection {
-                nearPlaneZ = -0.2;
-                farPlaneZ = -400;
-                fovDirection = "VERTICAL";
-                fovDegrees = 50;
-            }
-        };
-    };
-
-}
+    }; 
+    
+    lightingEnvironment = LightingEnvironment { 
+        ambientOcclusionSettings = AmbientOcclusionSettings { 
+            bias = 0.02; 
+            blurRadius = 2; 
+            blurStepSize = 1; 
+            depthPeelSeparationHint = 0.01; 
+            edgeSharpness = 1; 
+            enabled = true; 
+            highQualityBlur = true; 
+            intensity = 1; 
+            monotonicallyDecreasingBilateralWeights = false; 
+            numSamples = 20; 
+            packBlurKeys = false; 
+            radius = 0.75; 
+            temporalFilterSettings = TemporalFilter::Settings { 
+                falloffEndDistance = 0.07; 
+                falloffStartDistance = 0.05; 
+                hysteresis = 0.9; 
+            }; 
+            
+            temporallyVarySamples = true; 
+            useDepthPeelBuffer = false; 
+            useNormalBuffer = true; 
+            useNormalsInBlur = true; 
+            zStorage = "HALF"; 
+        }; 
+        
+        environmentMap = Texture::Specification { 
+            encoding = Texture::Encoding { 
+                format = "SRGB8"; 
+                readMultiplyFirst = 1.5; 
+            }; 
+            
+            filename = "cubemap/hipshot_m9_sky/16_*.png"; 
+        }; 
+        
+    }; 
+    
+    models = { 
+        boxModel = ArticulatedModel::Specification { 
+            filename = "models/box.obj"; 
+        }; 
+        
+        curveGroundModel = ArticulatedModel::Specification { 
+            filename = "models/bowl.obj"; 
+            preprocess = { 
+                setTwoSided("Bowl_Sphere_ground/ground", true ) }; 
+            
+        }; 
+        
+        cylinderModel = ArticulatedModel::Specification { 
+            filename = "models/cylinder.obj"; 
+        }; 
+        
+        groundModel = ArticulatedModel::Specification { 
+            filename = "models/floor.obj"; 
+        }; 
+        
+        groundModel2 = ArticulatedModel::Specification { 
+            filename = "models/floor2.obj"; 
+        }; 
+        
+        playerModel = ArticulatedModel::Specification { 
+            filename = "models/ball.obj"; 
+        }; 
+        
+    }; 
+    
+    name = "Level"; 
+} 

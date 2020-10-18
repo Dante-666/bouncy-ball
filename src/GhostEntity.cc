@@ -85,4 +85,25 @@ void GhostEntity::init(AnyTableReader &propertyTable) {
     // this->addBehavior(new FetchPhysicsUpdate());
 }
 
+Any GhostEntity::toAny(const bool forceAll) const {
+    Any a = Entity::toAny(forceAll);
+    a.setName("GhostEntity");
+    a["color"] = m_color;
+    // No need for a massive GhostEntity, initialize it to 0 all the time
+    a.remove("mass");;
+
+    const G3D::PropertyChain *link =
+        dynamic_cast<const G3D::PropertyChain *>(this);
+
+    while (link) {
+        if (link->getName() == "AShape") {
+            const AShape* ashape = dynamic_cast<const G3D::AShape *>(link);
+	    a.set("ashape", *ashape);
+        }
+        link = link->getNext();
+    }
+    // Model and pose must already have been set, so no need to change anything
+    return a;
+}
+
 } // namespace G3D

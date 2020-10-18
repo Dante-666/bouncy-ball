@@ -61,9 +61,7 @@ public:
 
     void init(AnyTableReader &propertyTable);
 
-    // TODO: add more default shapes and sizes
-    void init(Vector3 force);
+    virtual Any toAny(const bool forceAll) const override;
 
-    // const Shape::Type getShapeTypeFromString(const String shape);
 };
 } // namespace G3D
