@@ -58,12 +58,44 @@
             type = "SPOT"; 
         };
 
-        player1 = VisibleEntity {
+        /*player = VisibleEntity {
             model = "playerModel";
-            frame = Point3(0, 5, 0); 
+            frame = Point3(0, 2, 0); 
+        };*/
+
+        player = PhysicsEntity {
+            model = "playerModel";
+            frame = Point3(5, 10, 0); 
+	    mass = .5;
+	    ashape = AShape {
+		sphere = Sphere(1.0);
+	    };
+	    solid = Solid {
+		phased = false;
+		rollingFriction = 0.3;
+	    };
         };
 
-	player = RigidEntity {
+        ground = PhysicsEntity { 
+            model = "groundModel2";
+            frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, 0, 0);
+	    visible = true;
+	    mass = 0.0;
+            canChange = false;
+	    //Supply boxes with centered dimensions and then move those around
+	    //shape = Box(Point3(-100, -1, -100), Point3(100, 1, 100));
+	    ashape = AShape {
+	    };
+	};
+
+	ghost = GhostEntity {
+	    frame = Point3(10, 5, 0);
+	    ashape = AShape {
+		box = Box(Point3(-1, -1, -1), Point3(15, 3, 5));
+	    };
+	};
+
+	/*player = RigidEntity {
 	    model = "playerModel";
 	    frame = CFrame::fromXYZYPRDegrees(5, 5, 0, 0, 0, 0);
 	    mass = .5;
@@ -79,8 +111,8 @@
 	    ];
 	    color = Color3(1.0, 0, 0);
 	    canChange = false;
-	    force = Vector3(0, 0, 4);
-	};
+	    force = Vector3(0, 0, 10);
+	};*/
 
 	/*box = RigidEntity {
 	    model = "boxModel";
@@ -112,7 +144,7 @@
 	    collisionShape = "MESH";
 	};*/
 
-        ground = RigidEntity { 
+        /*ground = RigidEntity { 
             model = "groundModel2";
             frame = CFrame::fromXYZYPRDegrees(0, 0, 0, 0, 0, 0);
 	    visible = true;
@@ -121,7 +153,7 @@
 	    collisionShape = "MESH";
 	    //Supply boxes with centered dimensions and then move those around
 	    //shape = Box(Point3(-100, -1, -100), Point3(100, 1, 100));
-	};
+	};*/
 
         camera = Camera {
             frame = CFrame::fromXYZYPRDegrees(0, 5, -30, -90, 0, 0);

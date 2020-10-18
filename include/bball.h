@@ -15,6 +15,9 @@
 #include "G3D-gfx/G3D-gfx.h"
 
 #include "PhysicsScene.h"
+#include "GhostEntity.h"
+#include "PhysicsEntity.h"
+//TODO:Remove this
 #include "RigidEntity.h"
 #include "ForceFieldEntity.h"
 #include "PSceneEditorWindow.h"

@@ -14,8 +14,8 @@
 #include "G3D-base/G3D-base.h"
 #include "G3D-gfx/G3D-gfx.h"
 
-#include "BulletPhysics.h"
-#include "PurePhysics.h"
+#include "physics/BulletPhysics.h"
+#include "physics/PurePhysics.h"
 
 /** \brief An inherited Scene with support for Physics
  *

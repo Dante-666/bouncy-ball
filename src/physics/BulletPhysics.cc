@@ -8,12 +8,17 @@
  *  Author : Siddharth J Singh(dante)
  */
 
-#include "BulletPhysics.h"
+#include "physics/BulletPhysics.h"
+
+#include "GhostEntity.h"
+#include "PhysicsEntity.h"
 
 #include "ForceFieldEntity.h"
+#include "RigidEntity.h"
 #include "G3D-app/MarkerEntity.h"
 #include "G3D-base/Vector3.h"
-#include "RigidEntity.h"
+
+//#include "behavior/Behavior.h"
 
 BulletPhysics::BulletPhysics()
     : m_collisionConfig(new btDefaultCollisionConfiguration()),
@@ -41,7 +46,19 @@ void BulletPhysics::insertEntity(const G3D::Entity *entity) {
     // Add insertions of btRigidBody and btGhostObject differently in this
     // function itself and have factory methods to ease out the implementation
     btCollisionObject *object = nullptr;
-    if (auto rigid = dynamic_cast<const G3D::RigidEntity *>(entity)) {
+    if (auto physics = dynamic_cast<const G3D::PhysicsEntity *>(entity)) {
+        btRigidBody *body = PhysicsBodyFactory::create(physics);
+        m_dynamicsWorld->addRigidBody(body);
+        object = body;
+    } else if (auto gEntity = dynamic_cast<const G3D::GhostEntity *>(entity)) {
+        btGhostObject *ghost = Ghost2ObjectFactory::create(gEntity);
+        m_dynamicsWorld->addCollisionObject(ghost,
+                                            btBroadphaseProxy::StaticFilter);
+        m_dynamicsWorld->getBroadphase()
+            ->getOverlappingPairCache()
+            ->setInternalGhostPairCallback(new btGhostPairCallback());
+        object = ghost;
+    } else if (auto rigid = dynamic_cast<const G3D::RigidEntity *>(entity)) {
         btRigidBody *body = RigidBodyFactory::create(rigid);
         m_dynamicsWorld->addRigidBody(body);
         object = body;
