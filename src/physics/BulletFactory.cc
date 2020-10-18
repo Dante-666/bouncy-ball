@@ -21,7 +21,7 @@
 btCollisionShape *CollisionShapeFactory::create(const G3D::AShape *ashape) {
     shared_ptr<G3D::Shape> gShape = ashape->getShape();
     debugAssertM(gShape, "shape was not created.");
-    auto type = ashape->getShape()->type();
+    auto type = gShape->type();
     switch (type) {
     case G3D::Shape::Type::SPHERE: {
         shared_ptr<G3D::SphereShape> shape =

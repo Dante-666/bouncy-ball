@@ -90,6 +90,7 @@
 
 	ghost = GhostEntity {
 	    frame = Point3(10, 5, 0);
+	    color = Color3(1, 0, 0);
 	    ashape = AShape {
 		box = Box(Point3(-1, -1, -1), Point3(15, 3, 5));
 	    };

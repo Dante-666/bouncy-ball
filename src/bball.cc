@@ -70,6 +70,7 @@ void BallApp::onInit() {
     // automatically caught.
     showRenderingStats = false;
 
+#ifdef G3D_DEBUG
     // For higher-quality screenshots:
     // developerWindow->videoRecordDialog->setScreenShotFormat("PNG");
     // developerWindow->videoRecordDialog->setCaptureGui(false);
@@ -77,12 +78,14 @@ void BallApp::onInit() {
         // For now pass the nullptr
         createDeveloperHUD();
     }
+#endif
+
     debugAssert(notNull(m_ambientOcclusion));
     m_scene = PhysicsScene::create(m_ambientOcclusion);
     // Allowing custom Entity subclasses to be parsed from .Scene.Any files
     m_scene->registerEntitySubclass("PhysicsEntity", &PhysicsEntity::create);
     m_scene->registerEntitySubclass("GhostEntity", &GhostEntity::create);
-    
+
     setScene(m_scene);
 
     // Detect scene files in additional data directories.
@@ -95,6 +98,7 @@ void BallApp::onInit() {
         dataDirsAddedToScene = true;
     }
 
+#ifdef G3D_DEBUG
     const shared_ptr<GFont> &arialFont =
         GFont::fromFile(System::findDataFile("arial.fnt"));
     const shared_ptr<GuiTheme> &theme =
@@ -109,13 +113,14 @@ void BallApp::onInit() {
 
     developerWindow->cameraControlWindow->moveTo(
         Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
+    developerWindow->sceneEditorWindow->setPreventEntitySelect(false);
+    developerWindow->setVisible(false);
+#endif
+
     loadScene("Level");
     setActiveCamera(m_scene->typedEntity<Camera>("camera"));
     m_scene->addBoxArray("box", Vector2(10, 5), Vector3(10, 0, 0),
                          Vector3(0, 0, 1));
-
-    developerWindow->sceneEditorWindow->setPreventEntitySelect(false);
-    developerWindow->setVisible(false);
 }
 
 void BallApp::makeGUI() {
@@ -143,6 +148,16 @@ bool BallApp::onEvent(const GEvent &event) {
         setActiveCamera(camera);
     }
 
+#ifdef G3D_DEBUG
+    if ((event.type == GEventType::KEY_DOWN) &&
+        (event.key.keysym.sym == GKey('e'))) {
+        auto edit = !(m_scene->editing());
+        m_scene->setEditing(edit);
+        auto isVisible = !(developerWindow->sceneEditorWindow->visible());
+        developerWindow->sceneEditorWindow->setVisible(isVisible);
+    }
+#endif
+
     return false;
 }
 
@@ -161,13 +176,6 @@ void BallApp::onUserInput(UserInput *ui) {
             motionFrame.vectorToWorldSpace(Point3(-2.5, 0, 0));
         Point3 leftForce = motionFrame.vectorToWorldSpace(Point3(0, 0, -1.5));
         Point3 rightForce = motionFrame.vectorToWorldSpace(Point3(0, 0, 1.5));
-
-        if (ui->keyDown(GKey('e'))) {
-            auto edit = !(m_scene->editing());
-            m_scene->setEditing(edit);
-            auto isVisible = !(developerWindow->sceneEditorWindow->visible());
-            developerWindow->sceneEditorWindow->setVisible(isVisible);
-        }
 
         /** Cannot move forward and reverse at the same time and give priority
          * to forward motion */
