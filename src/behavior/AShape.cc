@@ -5,9 +5,7 @@
 
 namespace G3D {
 
-AShape::AShape(const AShape &opq) {
-    m_shape = opq.m_shape;
-}
+AShape::AShape(const AShape &opq) { m_shape = opq.m_shape; }
 
 AShape::AShape(const Any &any) {
     *this = AShape();
@@ -57,6 +55,8 @@ Any AShape::toAny() const {
     }
     return any;
 }
+
+AShape &AShape::operator=(const Any &a) { return *this = AShape(a); }
 
 const String AShape::getName() const { return "AShape"; }
 

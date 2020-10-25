@@ -18,6 +18,8 @@
  * How is it implemented? By having a linked list which applies the behavior, if
  * enabled, to the entity
  */
+#include "G3D-base/G3DString.h"
+
 namespace G3D {
 
 template<typename E>
@@ -33,6 +35,10 @@ public:
             next->addBehavior(n);
         else
             next = n;
+    }
+
+    const virtual String getName() const {
+	return "Base";
     }
 
     // TODO: Make this to Entity

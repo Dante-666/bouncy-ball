@@ -9,7 +9,10 @@
  */
 
 #include "GhostEntity.h"
+#include "G3D-gfx/Profiler.h"
 #include "PhysicsScene.h"
+#include "behavior/BChain.h"
+#include "behavior/PChain.h"
 
 namespace G3D {
 GhostEntity::GhostEntity() : MarkerEntity(){};
@@ -75,14 +78,29 @@ void GhostEntity::init(AnyTableReader &propertyTable) {
         debugAssertM(false, "Adding a non-box like shape for GhostEntity");
     }
 
+    // TODO: remove all these lists and have a custom getter setter
+    /*const G3D::BehaviorChain<GhostEntity> *link =
+        dynamic_cast<const G3D::PropertyChain *>(this);
+    while (link) {
+        if (link->getName() == "AShape") {
+
+            break;
+        } else if (link->getName() == "Base") {
+        }
+        link = link->getNext();
+    }*/
     MarkerEntity::init(boxArray, color);
 
     // Hold a pointer to this for ez behavior modification
     m_physicsScene = dynamic_cast<PhysicsScene *>(m_scene);
     debugAssertM(m_physicsScene, "Scene is not a PhysicsScene");
 
+    ForceField<GhostEntity> ff;
+    if (propertyTable.getIfPresent("field", ff)) {
+	this->addBehavior(new ForceField<GhostEntity>(ff));
+    }
     // Add default behaviors
-    // this->addBehavior(new FetchPhysicsUpdate());
+    //this->addBehavior(new ForceField<GhostEntity>());
 }
 
 Any GhostEntity::toAny(const bool forceAll) const {

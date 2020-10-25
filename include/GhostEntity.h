@@ -26,6 +26,8 @@
 
 #include "behavior/AShape.h"
 
+#include "behavior/ForceField.h"
+
 #include <memory>
 
 namespace G3D {
@@ -39,6 +41,7 @@ class GhostEntity : public MarkerEntity,
 
 public:
     // add friend classes here which implement behavior
+    friend class ForceField<GhostEntity>;
 
     GhostEntity();
 
