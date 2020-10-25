@@ -199,9 +199,9 @@ void BallApp::onUserInput(UserInput *ui) {
 
         /** Update the camera postion and set this to look at the ball */
         // TODO: remove z-value after demos
-        Point3 camPos = motionFrame.vectorToWorldSpace(Point3(-10, 4, -15));
+        /*Point3 camPos = motionFrame.vectorToWorldSpace(Point3(-10, 4, -15));
         camera->setPosition(camPos + motionFrame.translation);
-        camera->lookAt(motionFrame.translation);
+        camera->lookAt(motionFrame.translation);*/
     }
 }
 

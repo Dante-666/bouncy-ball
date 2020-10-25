@@ -28,21 +28,20 @@ class AShape : public PropertyChain {
     shared_ptr<Shape> m_shape;
 
 public:
-    AShape() : PropertyChain() {}
+    AShape() = default;
 
-    AShape(const AShape &opq);
+    AShape(const AShape &);
 
-    explicit AShape(const Any &any);
+    explicit AShape(const Any &);
 
-    AShape &operator=(const Any &a) { return *this = AShape(a); }
+    AShape &operator=(const Any &);
 
     Any toAny() const;
 
     const virtual String getName() const override;
 
-    void setShape(shared_ptr<Shape> shape);
+    void setShape(shared_ptr<Shape>);
 
     const shared_ptr<Shape> getShape() const;
-
 };
 } // namespace G3D
