@@ -59,36 +59,23 @@ void GhostEntity::init(AnyTableReader &propertyTable) {
     Color3 color = Color3::white();
     propertyTable.getIfPresent("color", color);
 
-    // TODO: remove all these lists and have a custom getter setter
     const G3D::PropertyChain *link =
         dynamic_cast<const G3D::PropertyChain *>(this);
-    while (link) {
-        if (link->getName() == "AShape") {
 
+    for (auto it = link->begin(); !it.isOver(); it.advance()) {
+        if (it->getName() == "AShape") {
+            const AShape *cshape = dynamic_cast<const G3D::AShape *>(*it);
+            shared_ptr<G3D::Shape> gShape = cshape->getShape();
+            if (gShape->type() == G3D::Shape::Type::BOX) {
+                boxArray.push_back(gShape->box());
+            } else {
+                debugAssertM(false,
+                             "Adding a non-box like shape for GhostEntity");
+            }
             break;
-        } else if (link->getName() == "Base") {
         }
-        link = link->getNext();
-    }
-    const AShape *cshape = dynamic_cast<const G3D::AShape *>(link);
-    shared_ptr<G3D::Shape> gShape = cshape->getShape();
-    if (gShape->type() == G3D::Shape::Type::BOX) {
-        boxArray.push_back(gShape->box());
-    } else {
-        debugAssertM(false, "Adding a non-box like shape for GhostEntity");
     }
 
-    // TODO: remove all these lists and have a custom getter setter
-    /*const G3D::BehaviorChain<GhostEntity> *link =
-        dynamic_cast<const G3D::PropertyChain *>(this);
-    while (link) {
-        if (link->getName() == "AShape") {
-
-            break;
-        } else if (link->getName() == "Base") {
-        }
-        link = link->getNext();
-    }*/
     MarkerEntity::init(boxArray, color);
 
     // Hold a pointer to this for ez behavior modification
@@ -97,10 +84,8 @@ void GhostEntity::init(AnyTableReader &propertyTable) {
 
     ForceField<GhostEntity> ff;
     if (propertyTable.getIfPresent("field", ff)) {
-	this->addBehavior(new ForceField<GhostEntity>(ff));
+        this->addBehavior(new ForceField<GhostEntity>(ff));
     }
-    // Add default behaviors
-    //this->addBehavior(new ForceField<GhostEntity>());
 }
 
 Any GhostEntity::toAny(const bool forceAll) const {
@@ -108,19 +93,17 @@ Any GhostEntity::toAny(const bool forceAll) const {
     a.setName("GhostEntity");
     a["color"] = m_color;
     // No need for a massive GhostEntity, initialize it to 0 all the time
-    a.remove("mass");;
+    a.remove("mass");
 
     const G3D::PropertyChain *link =
         dynamic_cast<const G3D::PropertyChain *>(this);
-
-    while (link) {
-        if (link->getName() == "AShape") {
-            const AShape* ashape = dynamic_cast<const G3D::AShape *>(link);
-	    a.set("ashape", *ashape);
+    for (auto it = link->begin(); !it.isOver(); it.advance()) {
+        if (it->getName() == "AShape") {
+            const AShape *ashape = dynamic_cast<const G3D::AShape *>(*it);
+            a.set("ashape", *ashape);
         }
-        link = link->getNext();
     }
-    // Model and pose must already have been set, so no need to change anything
+    
     return a;
 }
 

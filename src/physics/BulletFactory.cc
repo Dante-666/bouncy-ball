@@ -87,16 +87,13 @@ btRigidBody *PhysicsBodyFactory::create(const G3D::PhysicsEntity *pEntity) {
         dynamic_cast<const G3D::PropertyChain *>(pEntity);
 
     btCollisionShape *colShape = nullptr;
-    while (link) {
-        if (link->getName() == "AShape") {
+    for (auto it = link->begin(); !it.isOver(); it.advance()) {
+        if (it->getName() == "AShape") {
             colShape = CollisionShapeFactory::create(
-                dynamic_cast<const G3D::AShape *>(link));
+                dynamic_cast<const G3D::AShape *>(*it));
             break;
-        } else if (link->getName() == "Base") {
         }
-        link = link->getNext();
     }
-    // btCollisionShape *colShape = new btSphereShape(1.0);
 
     btScalar mass = pEntity->mass();
 
@@ -118,15 +115,12 @@ btRigidBody *PhysicsBodyFactory::create(const G3D::PhysicsEntity *pEntity) {
 
     btRigidBody *body = new btRigidBody(rbInfo);
 
-    link = dynamic_cast<const G3D::PropertyChain *>(pEntity);
-    while (link) {
-        if (link->getName() == "Solid") {
-            const G3D::Solid *solid = dynamic_cast<const G3D::Solid *>(link);
+    for (auto it = link->begin(); !it.isOver(); it.advance()) {
+        if (it->getName() == "Solid") {
+            const G3D::Solid *solid = dynamic_cast<const G3D::Solid *>(*it);
             body->setRollingFriction(solid->getRollingFriction());
             break;
-        } else if (link->getName() == "Base") {
         }
-        link = link->getNext();
     }
 
     return body;
@@ -136,16 +130,16 @@ btGhostObject *GhostObjectFactory::create(const G3D::GhostEntity *gEntity) {
     btGhostObject *ghost = new btGhostObject();
     const G3D::PropertyChain *link =
         dynamic_cast<const G3D::PropertyChain *>(gEntity);
+
     btCollisionShape *colShape = nullptr;
-    while (link) {
-        if (link->getName() == "AShape") {
+    for (auto it = link->begin(); !it.isOver(); it.advance()) {
+        if (it->getName() == "AShape") {
             colShape = CollisionShapeFactory::create(
-                dynamic_cast<const G3D::AShape *>(link));
+                dynamic_cast<const G3D::AShape *>(*it));
             break;
-        } else if (link->getName() == "Base") {
         }
-        link = link->getNext();
     }
+
     ghost->setCollisionShape(colShape);
     ghost->setWorldTransform(Frame::convert(gEntity->frame()));
     ghost->setCollisionFlags(

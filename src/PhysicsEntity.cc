@@ -15,8 +15,6 @@ namespace G3D {
 PhysicsEntity::PhysicsEntity() : VisibleEntity(){};
 
 void PhysicsEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
-
-    // TODO: apply all behaviors here
     this->apply(this);
 }
 
@@ -42,7 +40,7 @@ shared_ptr<Entity> PhysicsEntity::create(
 void PhysicsEntity::init(AnyTableReader &propertyTable) {
     AShape ashape;
     if (propertyTable.getIfPresent("ashape", ashape)) {
-	// Empty generic shape means user wants it constructed from mesh
+        // Empty generic shape means user wants it constructed from mesh
         if (!ashape.getShape()) {
             PhysicsEntity *entity = dynamic_cast<PhysicsEntity *>(this);
             const shared_ptr<ArticulatedModel> model =
@@ -82,18 +80,32 @@ Any PhysicsEntity::toAny(const bool forceAll) const {
     const G3D::PropertyChain *link =
         dynamic_cast<const G3D::PropertyChain *>(this);
 
-    while (link) {
-        if (link->getName() == "AShape") {
-            const AShape* ashape = dynamic_cast<const G3D::AShape *>(link);
-	    a.set("ashape", *ashape);
-        } else if (link->getName() == "Solid") {
-            const Solid* solid = dynamic_cast<const G3D::Solid *>(link);
-	    a.set("solid", *solid);
+    for (auto it = link->begin(); !it.isOver(); it.advance()) {
+        if (it->getName() == "AShape") {
+            const AShape *ashape = dynamic_cast<const G3D::AShape *>(*it);
+            a.set("ashape", *ashape);
+        } else if (it->getName() == "Solid") {
+            const Solid *solid = dynamic_cast<const G3D::Solid *>(*it);
+            a.set("solid", *solid);
         }
-        link = link->getNext();
     }
     // Model and pose must already have been set, so no need to change anything
     return a;
 }
 
+void PhysicsEntity::makeGUI(class GuiPane *pane, class GApp *app) {
+    VisibleEntity::makeGUI(pane, app);
+
+    Array<String> propertyNames("<none>");
+    const PropertyChain *link = dynamic_cast<const PropertyChain *>(this);
+    for (auto it = link->begin(); !it.isOver(); it.advance()) {
+        if (it->getName() == "AShape") {
+            propertyNames.append("AShape");
+        } else if (it->getName() == "Solid") {
+            propertyNames.append("Solid");
+        }
+    }
+    m_propertyDropDownList =
+        pane->addDropDownList("Behavior", propertyNames, nullptr, nullptr);
+}
 } // namespace G3D

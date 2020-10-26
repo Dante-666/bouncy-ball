@@ -72,12 +72,12 @@
                     Vector3(15, 3, 5 ) ); 
                 
             }; 
-
-	    field = ForceField {
-		force = Vector3(10, 0, 0);
-	    };
             
             color = Color3(1, 0, 0 ); 
+            field = ForceField { 
+                force = Vector3(10, 0, 0 ); 
+            }; 
+            
             frame = CFrame::fromXYZYPRDegrees(19.1445, 6.15418, -1.10856, 0, 87.8296 ); 
         }; 
         
@@ -99,7 +99,7 @@
             }; 
             
             canCauseCollisions = true; 
-            frame = CFrame::fromXYZYPRDegrees(28.4414, 2, 0.00212579, -0.395153, -0.0998408, 67.4519 ); 
+            frame = CFrame::fromXYZYPRDegrees(47.7127, 20, 1.51139, 1.14448, 0.557276, -78.0569 ); 
             mass = 0.5; 
             model = "playerModel"; 
             solid = Solid { 
@@ -126,6 +126,15 @@
             shadowsEnabled = true; 
             spotHalfAngleDegrees = 5; 
             type = "SPOT"; 
+        }; 
+        
+        vis = VisibleEntity { 
+            canCauseCollisions = true; 
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(0.0913895, 13.4666, -3.60505, -1.45216, 75.0086 ); 
+            mass = 0; 
+            model = "boxModel"; 
+            visible = true; 
         }; 
         
     }; 

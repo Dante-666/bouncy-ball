@@ -71,5 +71,10 @@ public:
     void init(AnyTableReader &propertyTable);
 
     virtual Any toAny(const bool forceAll) const override;
+
+    virtual void makeGUI(class GuiPane *pane, class GApp *app) override;
+
+protected:
+    class GuiDropDownList *m_propertyDropDownList;
 };
 } // namespace G3D
