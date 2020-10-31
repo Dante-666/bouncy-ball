@@ -76,5 +76,7 @@ public:
 
 protected:
     class GuiDropDownList *m_propertyDropDownList;
+
+    void onPropertyDropDownAction();
 };
 } // namespace G3D

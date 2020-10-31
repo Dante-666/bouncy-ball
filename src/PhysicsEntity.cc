@@ -96,16 +96,31 @@ Any PhysicsEntity::toAny(const bool forceAll) const {
 void PhysicsEntity::makeGUI(class GuiPane *pane, class GApp *app) {
     VisibleEntity::makeGUI(pane, app);
 
-    Array<String> propertyNames("<none>");
     const PropertyChain *link = dynamic_cast<const PropertyChain *>(this);
+	
+    auto tabPane = pane->addTabPane();
     for (auto it = link->begin(); !it.isOver(); it.advance()) {
-        if (it->getName() == "AShape") {
-            propertyNames.append("AShape");
-        } else if (it->getName() == "Solid") {
-            propertyNames.append("Solid");
-        }
+	String property = it->getName();
+	auto childPane = tabPane->addTab(property);
+	it->makeGUI(childPane, app);
     }
-    m_propertyDropDownList =
-        pane->addDropDownList("Behavior", propertyNames, nullptr, nullptr);
+
 }
+
+void PhysicsEntity::onPropertyDropDownAction() {
+    //cant do anything here, needs pane objects
+    /*const String &choice = m_propertyDropDownList->selectedValue().text();
+
+    const PropertyChain *link = dynamic_cast<const PropertyChain *>(this);
+    auto it = link->begin();
+    auto derived = it.getByName(choice);
+
+    derived->makeGUI(
+    if (choice == "AShape") {
+	auto ashape = dynamic_cast<const AShape *>(it.getByName("AShape"));
+    } else if (choice == "Solid") {
+	auto solid = dynamic_cast<const Solid *>(it.getByName("Solid"));
+    }*/
+}
+
 } // namespace G3D

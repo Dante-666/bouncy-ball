@@ -20,6 +20,7 @@
 
 #include "G3D-base/G3DString.h"
 #include "G3D-base/debug.h"
+#include "map"
 
 namespace G3D {
 
@@ -47,9 +48,22 @@ public:
     // TODO: Deprecate
     const PropertyChain *getNext() const { return next; }
 
+    virtual void makeGUI(class GuiPane* pane, class GApp* app) {}
+
     class Iterator {
         PropertyChain *node;
+        std::map<String, PropertyChain *> _m_intern;
         bool isDone = false;
+        bool _map_empty = true;
+
+        void _m_intern_fill() {
+            PropertyChain *first = node;
+            while (!isDone) {
+                _m_intern[node->getName()] = node;
+                advance();
+            }
+	    node = first;
+        }
 
     public:
         Iterator(PropertyChain *node = nullptr) { this->node = node; }
@@ -61,6 +75,19 @@ public:
             } else {
                 isDone = true;
             }
+        }
+
+        PropertyChain *getByName(const String name) {
+            if (_map_empty) {
+                _m_intern_fill();
+                _map_empty = false;
+            }
+            auto it = _m_intern.find(name);
+            if (it != _m_intern.end()) {
+		return _m_intern[name];
+	    } else {
+		return nullptr;
+	    }
         }
 
         /*inline bool operator!=(const Iterator &other) const {

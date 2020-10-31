@@ -5,10 +5,7 @@
 
 namespace G3D {
 
-AShape::AShape(const AShape &opq) { m_shape = opq.m_shape; }
-
-AShape::AShape(const Any &any) {
-    *this = AShape();
+void AShape::assignShape(const Any &any) {
     any.verifyName("AShape");
     AnyTableReader r(any);
     if (any.containsKey("sphere")) {
@@ -31,6 +28,13 @@ AShape::AShape(const Any &any) {
         if (r.getIfPresent("plane", plane))
             m_shape = std::make_shared<PlaneShape>(plane);
     }
+}
+
+AShape::AShape(const AShape &opq) { m_shape = opq.m_shape; }
+
+AShape::AShape(const Any &any) {
+    *this = AShape();
+    assignShape(any);
 }
 
 Any AShape::toAny() const {
@@ -64,4 +68,19 @@ void AShape::setShape(shared_ptr<Shape> shape) { m_shape = shape; }
 
 const shared_ptr<Shape> AShape::getShape() const { return m_shape; }
 
+void AShape::shapeSetterCallBack() {
+    auto any = Any::parse(m_anySpec);
+    assignShape(any);
+}
+
+void AShape::makeGUI(GuiPane *pane, GApp *app) {
+    auto any = toAny();
+    m_anySpec = any.unparse();
+    auto multiLineTextBox = pane->addMultiLineTextBox("Any Spec", &m_anySpec);
+    multiLineTextBox->setWidth(240);
+    multiLineTextBox->setHeight(100);
+    pane->addButton("Apply",
+                    GuiControl::Callback(this, &AShape::shapeSetterCallBack),
+                    GuiTheme::NORMAL_BUTTON_STYLE);
+}
 } // namespace G3D

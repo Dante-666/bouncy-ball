@@ -24,5 +24,9 @@ Any Solid::toAny() const {
 
 const String Solid::getName() const { return "Solid"; }
 
+void Solid::makeGUI(GuiPane* pane, GApp* app) {
+    pane->addNumberBox<float>("rollingFriction", &m_rollingFriction);
+}
+
 const float Solid::getRollingFriction() const { return m_rollingFriction; }
 } // namespace G3D

@@ -10,9 +10,11 @@
 
 #pragma once
 
+#include "G3D-app/GuiDropDownList.h"
 #include "PChain.h"
 
 #include "G3D-app/ArticulatedModel.h"
+#include "G3D-app/GuiControl.h"
 #include "G3D-app/Shape.h"
 #include "G3D-base/G3D-base.h"
 
@@ -26,6 +28,10 @@ class AShape : public PropertyChain {
     // Add shapes etc.
     // TODO: Explore object construction by deriving shapes directly from Mesh.
     shared_ptr<Shape> m_shape;
+    GuiDropDownList *m_shapeDropDownList;
+    String m_anySpec;
+
+    void assignShape(const Any &);
 
 public:
     AShape() = default;
@@ -38,10 +44,15 @@ public:
 
     Any toAny() const;
 
+
     const virtual String getName() const override;
 
     void setShape(shared_ptr<Shape>);
 
     const shared_ptr<Shape> getShape() const;
+
+    void shapeSetterCallBack();
+
+    virtual void makeGUI(class GuiPane *pane, class GApp *app) override;
 };
 } // namespace G3D
