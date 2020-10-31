@@ -38,6 +38,8 @@ public:
 
     const virtual String getName() const override;
 
+    virtual void makeGUI(GuiPane* pane, GApp* app) override;
+
     const float getRollingFriction() const;
 };
 } // namespace G3D
