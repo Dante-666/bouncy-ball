@@ -10,11 +10,15 @@
 
 #pragma once
 
+#include <boost/bimap.hpp>
+
 #include <map>
 #include <set>
 
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h"
+#include "BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h"
+
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #include "LinearMath/btDefaultMotionState.h"
@@ -53,7 +57,8 @@ class BulletPhysics : public PurePhysics {
     // might be the best option to update and track entities which were added
     // TODO: Lifecycle or Object Pool may be used inside the Factory itself and
     // have this class use it as a private member
-    std::map<const G3D::Entity *, btCollisionObject *> m_dynamicBodyMap;
+    
+    boost::bimap<G3D::Entity const*, btCollisionObject *> m_dynamicBodyMap;
 
 public:
     BulletPhysics();
@@ -73,7 +78,11 @@ public:
     virtual void removeEntity(const G3D::Entity *entity) override;
 
     virtual void applyForceField(const G3D::Entity *field,
-                                 const G3D::Vector3 force) override;
+                                 const G3D::Vector3 force,
+                                 const FieldType type) override;
+
+    virtual shared_ptr<G3D::Entity>
+    getInContactEntity(const G3D::Entity *field) override;
 
     virtual G3D::CoordinateFrame getFrame(const G3D::Entity *entity) override;
 

@@ -19,6 +19,8 @@
 
 namespace G3D {
 template <typename E> class ForceField : public BehaviorChain<E> {
+
+protected:
     Vector3 m_force;
 
 public:
