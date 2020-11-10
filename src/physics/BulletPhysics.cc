@@ -10,6 +10,7 @@
 
 #include "physics/BulletPhysics.h"
 
+#include "G3D-app/Entity.h"
 #include "GhostEntity.h"
 #include "PhysicsEntity.h"
 
@@ -56,46 +57,87 @@ void BulletPhysics::insertEntity(const G3D::Entity *entity) {
             ->setInternalGhostPairCallback(new btGhostPairCallback());
         object = ghost;
     } else {
-        //debugAssertM(false, "Unknown G3D entity subclass was passed");
+        // debugAssertM(false, "Unknown G3D entity subclass was passed");
         return;
     }
 
-    m_dynamicBodyMap.insert(std::pair(entity, object));
+    m_dynamicBodyMap.insert({entity, object});
 }
 
 void BulletPhysics::removeEntity(const G3D::Entity *entity) {
-    auto iter = m_dynamicBodyMap.find(entity);
-    debugAssertM(iter != m_dynamicBodyMap.end(),
+    auto iter = m_dynamicBodyMap.left.find(entity);
+    debugAssertM(iter != m_dynamicBodyMap.left.end(),
                  "Entity to be removed is not present in the map");
-    m_dynamicBodyMap.erase(iter);
-    // TODO: more stuff for removing the entity from the dynamics world also
-    // to be performed here
+    m_dynamicBodyMap.left.erase(entity);
+
+    if (auto ghost = btGhostObject::upcast(iter->get_right())) {
+        m_dynamicsWorld->removeCollisionObject(ghost);
+    } else if (auto body = btRigidBody::upcast(iter->get_right())) {
+        m_dynamicsWorld->removeRigidBody(body);
+    }
 }
 
-// TODO: supply the force out here
 void BulletPhysics::applyForceField(const G3D::Entity *field,
-                                    const G3D::Vector3 force) {
-    auto iter = m_dynamicBodyMap.find(field);
-    debugAssertM(iter != m_dynamicBodyMap.end(),
+                                    const G3D::Vector3 force,
+                                    const FieldType type) {
+    auto iter = m_dynamicBodyMap.left.find(field);
+    debugAssertM(iter != m_dynamicBodyMap.left.end(),
                  "Queried entity is not present in the map");
-    auto fieldObject = iter->second;
+    auto fieldObject = iter->get_right();
     auto forcefield = btGhostObject::upcast(fieldObject);
 
     btTransform trans = forcefield->getWorldTransform();
+
     for (int i = 0; i < forcefield->getNumOverlappingObjects(); i++) {
         auto reactor = forcefield->getOverlappingObject(i);
         btRigidBody *body = btRigidBody::upcast(reactor);
         if (body) {
-            body->applyCentralForce(trans.getBasis() * Vector::convert(force));
+            if (type == DIRECTIONAL) {
+                body->applyCentralForce(trans.getBasis() *
+                                        Vector::convert(force));
+            } else if (type == RADIAL) {
+                /*auto reactT = body->getWorldTransform();
+                auto attractPos = btVector3(12, 15, 0);
+                auto reactPos = reactT.getOrigin();
+
+                auto dirVec = attractPos - reactPos;
+                auto radialDamp = fmax(0.002, pow(dirVec.length(), 2));
+                auto appliedForce =
+                    force.length() * dirVec.normalize() * radialDamp;
+                body->applyCentralForce(force.length() * dirVec.normalize() *
+                                        radialDamp);*/
+                // auto constraint = btGeneric6DofConstraint();
+            }
         }
     }
 }
 
-G3D::CoordinateFrame BulletPhysics::getFrame(const G3D::Entity *entity) {
-    auto iter = m_dynamicBodyMap.find(entity);
-    debugAssertM(iter != m_dynamicBodyMap.end(),
+shared_ptr<G3D::Entity>
+BulletPhysics::getInContactEntity(const G3D::Entity *field) {
+    auto iter = m_dynamicBodyMap.left.find(field);
+    debugAssertM(iter != m_dynamicBodyMap.left.end(),
                  "Queried entity is not present in the map");
-    auto collisionObject = iter->second;
+    auto fieldObject = iter->get_right();
+    auto forcefield = btGhostObject::upcast(fieldObject);
+
+    btTransform trans = forcefield->getWorldTransform();
+
+    for (int i = 0; i < forcefield->getNumOverlappingObjects(); i++) {
+        auto reactor = forcefield->getOverlappingObject(i);
+        btRigidBody *body = btRigidBody::upcast(reactor);
+        if (body) {
+            //	    return m_dynamicBodyMap.find(body).get_left();
+            return nullptr;
+        }
+    }
+    return nullptr;
+}
+
+G3D::CoordinateFrame BulletPhysics::getFrame(const G3D::Entity *entity) {
+    auto iter = m_dynamicBodyMap.left.find(entity);
+    debugAssertM(iter != m_dynamicBodyMap.left.end(),
+                 "Queried entity is not present in the map");
+    auto collisionObject = iter->get_right();
     btRigidBody *rigidBody = btRigidBody::upcast(collisionObject);
 
     btTransform trans;
@@ -108,29 +150,29 @@ G3D::CoordinateFrame BulletPhysics::getFrame(const G3D::Entity *entity) {
     return Frame::convert(trans);
 }
 void BulletPhysics::reconstructRigidBody(const G3D::Entity *entity) {
-    auto iter = m_dynamicBodyMap.find(entity);
-    debugAssertM(iter != m_dynamicBodyMap.end(),
+    auto iter = m_dynamicBodyMap.left.find(entity);
+    debugAssertM(iter != m_dynamicBodyMap.left.end(),
                  "Queried entity is not present in the map");
-    auto collisionObject = iter->second;
+    auto collisionObject = iter->get_right();
     btRigidBody *rigidBody = btRigidBody::upcast(collisionObject);
 
     m_dynamicsWorld->removeRigidBody(rigidBody);
+
+    // delete this pointer
+    delete rigidBody;
     if (auto rigid = dynamic_cast<const G3D::PhysicsEntity *>(entity)) {
         btRigidBody *body = PhysicsBodyFactory::create(rigid);
         m_dynamicsWorld->addRigidBody(body);
-	iter->second = body;
-    } 
-    // delete this pointer
-    delete rigidBody;
-    //m_dynamicBodyMap.insert(std::pair(entity, object));
 
+	m_dynamicBodyMap.left.replace_data(iter, body);
+    }
 }
 
 void BulletPhysics::applyForce(G3D::Entity *entity, G3D::Point3 force) {
-    auto iter = m_dynamicBodyMap.find(entity);
-    debugAssertM(iter != m_dynamicBodyMap.end(),
+    auto iter = m_dynamicBodyMap.left.find(entity);
+    debugAssertM(iter != m_dynamicBodyMap.left.end(),
                  "Queried entity is not present in the map");
-    auto collisionObject = iter->second;
+    auto collisionObject = iter->get_right();
     btRigidBody *rigidBody = btRigidBody::upcast(collisionObject);
     rigidBody->applyCentralForce(Vector::convert(force));
 }

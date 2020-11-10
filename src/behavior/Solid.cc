@@ -5,7 +5,10 @@
 
 namespace G3D {
 
-Solid::Solid(const Solid &opq) { m_phased = opq.m_phased; }
+Solid::Solid(const Solid &opq) {
+    m_phased = opq.m_phased;
+    m_rollingFriction = opq.m_rollingFriction;
+}
 
 Solid::Solid(const Any &any) {
     *this = Solid();
@@ -24,7 +27,7 @@ Any Solid::toAny() const {
 
 const String Solid::getName() const { return "Solid"; }
 
-void Solid::makeGUI(GuiPane* pane, GApp* app) {
+void Solid::makeGUI(GuiPane *pane, GApp *app) {
     pane->addNumberBox<float>("rollingFriction", &m_rollingFriction);
 }
 

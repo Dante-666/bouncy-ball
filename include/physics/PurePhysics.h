@@ -9,6 +9,7 @@
  */
 
 #pragma once
+#include "G3D-app/Entity.h"
 #include "G3D-app/G3D-app.h"
 #include "G3D-base/G3D-base.h"
 #include "G3D-base/Matrix3x4.h"
@@ -31,7 +32,10 @@
  */
 
 class PurePhysics {
+
 public:
+    enum FieldType { DIRECTIONAL, RADIAL };
+
     PurePhysics() = default;
     virtual ~PurePhysics() = default;
     /** Insertion routine for different objects. Since G3D provides the m_pose
@@ -47,7 +51,11 @@ public:
     /** #33 needs an interface like this
      */
     virtual void applyForceField(const G3D::Entity *field,
-                                 const G3D::Vector3 force) = 0;
+                                 const G3D::Vector3 force,
+                                 const FieldType type = DIRECTIONAL) = 0;
+
+    virtual shared_ptr<G3D::Entity>
+    getInContactEntity(const G3D::Entity *field) = 0;
 
     /** Extract the CoordinateFrame information from whatever RT datatypes the
      * underlying physics engine supports so that G3D can make the corresponding

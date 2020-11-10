@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "BChain.h"
+#include "ForceField.h"
 
 #include "G3D-base/G3D-base.h"
 
@@ -18,11 +18,21 @@
  */
 
 namespace G3D {
-template <typename E> class Attractor : public BehaviorChain<E> {
+template <typename E> class Attractor : public ForceField<E> {
 
 public:
     Attractor() = default;
 
+    Attractor(const Attractor &);
+
+    explicit Attractor(const Any &);
+
+    Attractor &operator=(const Any &);
+
+    Any toAny() const;
+
+    const virtual String getName() const override;
+
     virtual void apply(E *pEntity) override;
 };
-}
+} // namespace G3D

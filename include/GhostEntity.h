@@ -26,6 +26,7 @@
 
 #include "behavior/AShape.h"
 
+#include "behavior/Attractor.h"
 #include "behavior/ForceField.h"
 
 #include <memory>
@@ -42,6 +43,7 @@ class GhostEntity : public MarkerEntity,
 public:
     // add friend classes here which implement behavior
     friend class ForceField<GhostEntity>;
+    friend class Attractor<GhostEntity>;
 
     GhostEntity();
 

@@ -19,29 +19,18 @@ GhostEntity::GhostEntity() : MarkerEntity(){};
 
 void GhostEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
 
-    // TODO: apply all behaviors here
     this->apply(this);
-    /*void ForceFieldEntity::onSimulation(SimTime absoluteTime, SimTime
-    deltaTime) { PhysicsScene *physicsScene = dynamic_cast<PhysicsScene
-    *>(m_scene); if (physicsScene) {
-    //TODO: pass the force here as well
-        physicsScene->getPhysicsEngine()->applyForceField(this, m_force);
-    }*/
 }
 
 shared_ptr<Entity> GhostEntity::create(const String &name, Scene *scene,
                                        AnyTableReader &propertyTable,
                                        const ModelTable &modelTable,
                                        const Scene::LoadOptions &loadOptions) {
-    // Don't initialize in the constructor, where it is unsafe to throw Any
-    // parse exceptions
     shared_ptr<GhostEntity> physEntity(new GhostEntity());
 
-    // Initialize each base class, which parses its own fields
     physEntity->Entity::init(name, scene, propertyTable);
     physEntity->GhostEntity::init(propertyTable);
 
-    // Verify that all fields were read by the base classes
     propertyTable.verifyDone();
 
     return physEntity;
@@ -85,6 +74,10 @@ void GhostEntity::init(AnyTableReader &propertyTable) {
     ForceField<GhostEntity> ff;
     if (propertyTable.getIfPresent("field", ff)) {
         this->addBehavior(new ForceField<GhostEntity>(ff));
+    }
+    Attractor<GhostEntity> att;
+    if (propertyTable.getIfPresent("attractor", att)) {
+        this->addBehavior(new Attractor<GhostEntity>(att));
     }
 }
 

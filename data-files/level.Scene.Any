@@ -65,20 +65,35 @@
             visualizationScale = 1; 
         }; 
         
+        mark = GhostEntity { 
+            ashape = AShape { 
+                box = AABox(
+                    Vector3(-1, -1, -1 ), 
+                    Vector3(1, 1, 1 ) ); 
+                
+            }; 
+            
+            color = Color3(0, 1, 0 ); 
+            
+            frame = CFrame::fromXYZYPRDegrees(12, 5, 2); 
+        }; 
+
         ghost = GhostEntity { 
             ashape = AShape { 
                 box = AABox(
                     Vector3(-1, -1, -1 ), 
-                    Vector3(15, 3, 5 ) ); 
-                
+                    Vector3(15, 15, 15 ) ); 
             }; 
             
             color = Color3(1, 0, 0 ); 
-            field = ForceField { 
-                force = Vector3(10, 0, 0 ); 
-            }; 
+            /*field = ForceField { 
+                force = Vector3(0, 5, 0 ); 
+            };*/
+            /*attractor = Attractor { 
+                force = Vector3(6, 0, 0 ); 
+            };*/
             
-            frame = CFrame::fromXYZYPRDegrees(19.1445, 6.15418, -1.10856, 0, 87.8296 ); 
+            frame = CFrame::fromXYZYPRDegrees(10.1445, 22.15418, 2, 0, 0, 0 ); 
         }; 
         
         ground = PhysicsEntity { 
@@ -91,7 +106,7 @@
             mass = 0; 
             model = "groundModel2"; 
             visible = true; 
-        }; 
+        };
         
         player = PhysicsEntity { 
             ashape = AShape { 
@@ -99,7 +114,7 @@
             }; 
             
             canCauseCollisions = true; 
-            frame = CFrame::fromXYZYPRDegrees(47.7127, 20, 1.51139, 1.14448, 0.557276, -78.0569 ); 
+            frame = CFrame::fromXYZYPRDegrees(17, 7, 1.51139, 1.14448, 0.557276, -78.0569 ); 
             mass = 0.5; 
             model = "playerModel"; 
             solid = Solid { 

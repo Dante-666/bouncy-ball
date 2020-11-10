@@ -4,9 +4,6 @@
 #include "PhysicsScene.h"
 
 namespace G3D {
-/*template <typename E> ForceField<E>::ForceField(const ForceField<E> &ff) {
-    m_force = ff.m_force;
-}*/
 
 template<> ForceField<GhostEntity>::ForceField(const ForceField<GhostEntity> &ff) {
     m_force = ff.m_force;
