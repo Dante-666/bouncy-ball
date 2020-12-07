@@ -40,9 +40,9 @@ ForceField<GhostEntity> &ForceField<GhostEntity>::operator=(const Any &a) {
 
 template <> void ForceField<GhostEntity>::apply(GhostEntity *gEntity) {
     /*if (!gEntity->canChange())
-        return;*/
+        return;
     gEntity->m_physicsScene->getPhysicsEngine()->applyForceField(gEntity,
                                                                  m_force);
-    BehaviorChain::apply(gEntity);
+    BehaviorChain::apply(gEntity);*/
 }
 } // namespace G3D

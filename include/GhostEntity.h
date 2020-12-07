@@ -11,9 +11,8 @@
 #pragma once
 
 /** \brief Derived from a MarkerEntity
- * Designed to behave like a RigidBody based on inputs from a Physics Engine and
- * interact with other rigid bodies and soft materials which can work with that
- * engine.
+ * Designed to behave like a trigger sort of entity which can be used to obtain
+ * the entities overlapping this bounding box.
  */
 
 #include "G3D-app/ArticulatedModel.h"
@@ -35,38 +34,16 @@ namespace G3D {
 
 class PhysicsScene;
 
-class GhostEntity : public MarkerEntity,
-                    private BehaviorChain<GhostEntity>,
-                    public PropertyChain {
+class GhostEntity : public MarkerEntity, public PropertyChain {
+
+protected:
     PhysicsScene *m_physicsScene;
 
 public:
-    // add friend classes here which implement behavior
-    friend class ForceField<GhostEntity>;
-    friend class Attractor<GhostEntity>;
-
     GhostEntity();
-
-    /** update the pose of object here by querying the physics engine */
-    virtual void onSimulation(SimTime absoluteTime, SimTime deltaTime) override;
-
-    /** For deserialization from Any / loading from file */
-    static shared_ptr<Entity> create(const String &name, Scene *scene,
-                                     AnyTableReader &propertyTable,
-                                     const ModelTable &modelTable,
-                                     const Scene::LoadOptions &loadOptions);
-
-    /** For programmatic construction at runtime */
-    static shared_ptr<Entity> create(const String &name, Scene *scene,
-                                     const Array<Box> &osBoxArray,
-                                     const Color3 &color, const CFrame &frame,
-                                     const shared_ptr<Track> &track,
-                                     bool canChange, bool shouldBeSaved,
-                                     const Vector3 force);
 
     void init(AnyTableReader &propertyTable);
 
     virtual Any toAny(const bool forceAll) const override;
-
 };
 } // namespace G3D

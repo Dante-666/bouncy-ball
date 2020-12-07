@@ -17,25 +17,6 @@
 namespace G3D {
 GhostEntity::GhostEntity() : MarkerEntity(){};
 
-void GhostEntity::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
-
-    this->apply(this);
-}
-
-shared_ptr<Entity> GhostEntity::create(const String &name, Scene *scene,
-                                       AnyTableReader &propertyTable,
-                                       const ModelTable &modelTable,
-                                       const Scene::LoadOptions &loadOptions) {
-    shared_ptr<GhostEntity> physEntity(new GhostEntity());
-
-    physEntity->Entity::init(name, scene, propertyTable);
-    physEntity->GhostEntity::init(propertyTable);
-
-    propertyTable.verifyDone();
-
-    return physEntity;
-}
-
 // Initialize all behaviors
 void GhostEntity::init(AnyTableReader &propertyTable) {
     AShape ashape;
@@ -71,14 +52,6 @@ void GhostEntity::init(AnyTableReader &propertyTable) {
     m_physicsScene = dynamic_cast<PhysicsScene *>(m_scene);
     debugAssertM(m_physicsScene, "Scene is not a PhysicsScene");
 
-    ForceField<GhostEntity> ff;
-    if (propertyTable.getIfPresent("field", ff)) {
-        this->addBehavior(new ForceField<GhostEntity>(ff));
-    }
-    Attractor<GhostEntity> att;
-    if (propertyTable.getIfPresent("attractor", att)) {
-        this->addBehavior(new Attractor<GhostEntity>(att));
-    }
 }
 
 Any GhostEntity::toAny(const bool forceAll) const {

@@ -9,6 +9,8 @@
  */
 
 #pragma once
+
+#include "Constraint.h"
 #include "G3D-app/Entity.h"
 #include "G3D-app/G3D-app.h"
 #include "G3D-base/G3D-base.h"
@@ -46,6 +48,7 @@ public:
      * supposed to be a bit faster
      */
     virtual void insertEntity(const G3D::Entity *entity) = 0;
+
     virtual void removeEntity(const G3D::Entity *entity) = 0;
 
     /** #33 needs an interface like this
@@ -54,8 +57,18 @@ public:
                                  const G3D::Vector3 force,
                                  const FieldType type = DIRECTIONAL) = 0;
 
-    virtual shared_ptr<G3D::Entity>
-    getInContactEntity(const G3D::Entity *field) = 0;
+    virtual G3D::Constraint *const
+    addConstraint(const G3D::Entity *entityA, const G3D::Entity *entityB) = 0;
+
+    virtual void removeConstraint(const G3D::Constraint *const constraint) = 0;
+
+    /** This may return nullptr when we don't have any colliders, take care of
+     * this in the client */
+    virtual const G3D::Entity *const
+    getPrimaryCollider(const G3D::Entity *trigger) = 0;
+
+    virtual void ignoreCollisionCheck(const G3D::Entity *trigger,
+                                      const G3D::Entity *collider) = 0;
 
     /** Extract the CoordinateFrame information from whatever RT datatypes the
      * underlying physics engine supports so that G3D can make the corresponding

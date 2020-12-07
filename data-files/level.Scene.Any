@@ -43,8 +43,7 @@
                 vignetteSizeFraction = 0.17; 
                 vignetteTopStrength = 0.5; 
             }; 
-            
-            frame = CFrame::fromXYZYPRDegrees(17.7805, 10.133, -21.589, -153.721, -11.6833 ); 
+            frame = CFrame::fromXYZYPRDegrees(32, 19, -30, 131, -11.6833 ); 
             mass = 1; 
             motionBlurSettings = MotionBlurSettings { 
                 enabled = true; 
@@ -65,7 +64,7 @@
             visualizationScale = 1; 
         }; 
         
-        mark = GhostEntity { 
+        /*mark = GhostEntity { 
             ashape = AShape { 
                 box = AABox(
                     Vector3(-1, -1, -1 ), 
@@ -73,29 +72,43 @@
                 
             }; 
             
+	    field = ForceField { 
+                force = Vector3(0, 5, 0 ); 
+            };
+
             color = Color3(0, 1, 0 ); 
             
             frame = CFrame::fromXYZYPRDegrees(12, 5, 2); 
-        }; 
-
-        ghost = GhostEntity { 
+        };*/
+            
+	attractor = AttractorEntity { 
             ashape = AShape { 
                 box = AABox(
                     Vector3(-1, -1, -1 ), 
-                    Vector3(15, 15, 15 ) ); 
+                    Vector3(2, 2, 2 ) ); 
+                
             }; 
             
-            color = Color3(1, 0, 0 ); 
-            /*field = ForceField { 
-                force = Vector3(0, 5, 0 ); 
-            };*/
-            /*attractor = Attractor { 
-                force = Vector3(6, 0, 0 ); 
-            };*/
+            color = Color3(0, 1, 0 ); 
             
-            frame = CFrame::fromXYZYPRDegrees(10.1445, 22.15418, 2, 0, 0, 0 ); 
-        }; 
-        
+            frame = CFrame::fromXYZYPRDegrees(12, 5, 2); 
+	};
+
+	spawner = SpawnerEntity { 
+            ashape = AShape { 
+                box = AABox(
+                    Vector3(-1, -1, -1 ), 
+                    Vector3(1, 1, 1 ) ); 
+                
+            }; 
+	    time = 2;
+	    spawn = true;
+            
+            color = Color3(1, 0, 0 ); 
+            
+            frame = CFrame::fromXYZYPRDegrees(12, 10, 2); 
+	};
+
         ground = PhysicsEntity { 
             ashape = AShape { 
             }; 
@@ -114,7 +127,7 @@
             }; 
             
             canCauseCollisions = true; 
-            frame = CFrame::fromXYZYPRDegrees(17, 7, 1.51139, 1.14448, 0.557276, -78.0569 ); 
+            frame = CFrame::fromXYZYPRDegrees(12, 15, 2, 0, 0, 0 ); 
             mass = 0.5; 
             model = "playerModel"; 
             solid = Solid { 
