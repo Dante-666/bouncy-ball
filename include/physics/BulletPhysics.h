@@ -12,15 +12,16 @@
 
 #include <boost/bimap.hpp>
 
-#include <map>
 #include <set>
 
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
-#include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h"
+#include "BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h"
 
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
+#include "Constraint.h"
 #include "LinearMath/btDefaultMotionState.h"
 
 #include "G3D-app/ArticulatedModel.h"
@@ -57,8 +58,9 @@ class BulletPhysics : public PurePhysics {
     // might be the best option to update and track entities which were added
     // TODO: Lifecycle or Object Pool may be used inside the Factory itself and
     // have this class use it as a private member
-    
-    boost::bimap<G3D::Entity const*, btCollisionObject *> m_dynamicBodyMap;
+
+    boost::bimap<G3D::Entity const *, btCollisionObject *> m_dynamicBodyMap;
+    std::map<const G3D::Constraint* const, btTypedConstraint *> m_constraintMap;
 
 public:
     BulletPhysics();
@@ -81,8 +83,18 @@ public:
                                  const G3D::Vector3 force,
                                  const FieldType type) override;
 
-    virtual shared_ptr<G3D::Entity>
-    getInContactEntity(const G3D::Entity *field) override;
+    virtual G3D::Constraint *const
+    addConstraint(const G3D::Entity *entityA,
+                  const G3D::Entity *entityB) override;
+
+    virtual void
+    removeConstraint(const G3D::Constraint *const constraint) override;
+
+    virtual const G3D::Entity *const
+    getPrimaryCollider(const G3D::Entity *field) override;
+
+    virtual void ignoreCollisionCheck(const G3D::Entity *trigger,
+                                      const G3D::Entity *collider) override;
 
     virtual G3D::CoordinateFrame getFrame(const G3D::Entity *entity) override;
 

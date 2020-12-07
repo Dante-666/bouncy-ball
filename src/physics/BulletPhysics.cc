@@ -10,6 +10,7 @@
 
 #include "physics/BulletPhysics.h"
 
+#include "Constraint.h"
 #include "G3D-app/Entity.h"
 #include "GhostEntity.h"
 #include "PhysicsEntity.h"
@@ -112,8 +113,50 @@ void BulletPhysics::applyForceField(const G3D::Entity *field,
     }
 }
 
-shared_ptr<G3D::Entity>
-BulletPhysics::getInContactEntity(const G3D::Entity *field) {
+G3D::Constraint *const
+BulletPhysics::addConstraint(const G3D::Entity *entityA,
+                             const G3D::Entity *entityB) {
+    auto iterA = m_dynamicBodyMap.left.find(entityA);
+    debugAssertM(iterA != m_dynamicBodyMap.left.end(),
+                 "Queried entity is not present in the map");
+    auto iterB = m_dynamicBodyMap.left.find(entityB);
+    debugAssertM(iterB != m_dynamicBodyMap.left.end(),
+                 "Queried entity is not present in the map");
+    auto matrix = btMatrix3x3();
+    auto trans = btTransform();
+    trans.setIdentity();
+
+    btRigidBody *rigidBodyA = btRigidBody::upcast(iterA->get_right());
+    btRigidBody *rigidBodyB = btRigidBody::upcast(iterB->get_right());
+
+    auto constraint = new btGeneric6DofConstraint(*rigidBodyA, *rigidBodyB,
+                                                  trans, trans, true);
+    m_dynamicsWorld->addConstraint(constraint, true);
+
+    auto g3dConstraint = new G3D::Constraint();
+    g3dConstraint->setType(G3D::Constraint::TYPE::GENERIC6DOF);
+
+    m_constraintMap.insert({g3dConstraint, constraint});
+
+    return g3dConstraint;
+}
+
+void BulletPhysics::removeConstraint(const G3D::Constraint *const constraint) {
+    auto iter = m_constraintMap.find(constraint);
+    debugAssertM(iter != m_constraintMap.end(),
+                 "Queried constraint is not present in the map");
+
+    auto pConstraint = iter->second;
+    m_dynamicsWorld->removeConstraint(pConstraint);
+
+    m_constraintMap.erase(iter);
+
+    delete pConstraint;
+    delete constraint;
+}
+
+const G3D::Entity *const
+BulletPhysics::getPrimaryCollider(const G3D::Entity *field) {
     auto iter = m_dynamicBodyMap.left.find(field);
     debugAssertM(iter != m_dynamicBodyMap.left.end(),
                  "Queried entity is not present in the map");
@@ -124,13 +167,31 @@ BulletPhysics::getInContactEntity(const G3D::Entity *field) {
 
     for (int i = 0; i < forcefield->getNumOverlappingObjects(); i++) {
         auto reactor = forcefield->getOverlappingObject(i);
-        btRigidBody *body = btRigidBody::upcast(reactor);
-        if (body) {
-            //	    return m_dynamicBodyMap.find(body).get_left();
-            return nullptr;
+        if (reactor && fieldObject->checkCollideWith(reactor)) {
+            if (auto body = btRigidBody::upcast(reactor)) {
+                auto iter = m_dynamicBodyMap.right.find(body);
+                debugAssertM(iter != m_dynamicBodyMap.right.end(),
+                             "Queried body is not present in the map");
+                return iter->get_left();
+            }
         }
     }
     return nullptr;
+}
+
+void BulletPhysics::ignoreCollisionCheck(const G3D::Entity *trigger,
+                                         const G3D::Entity *collider) {
+    auto trigIter = m_dynamicBodyMap.left.find(trigger);
+    debugAssertM(trigIter != m_dynamicBodyMap.left.end(),
+                 "Queried entity is not present in the map");
+    auto colIter = m_dynamicBodyMap.left.find(collider);
+    debugAssertM(trigIter != m_dynamicBodyMap.left.end(),
+                 "Queried entity is not present in the map");
+
+    auto triggerCO = trigIter->get_right();
+    if (triggerCO->checkCollideWith(colIter->get_right())) {
+        triggerCO->setIgnoreCollisionCheck(colIter->get_right(), true);
+    }
 }
 
 G3D::CoordinateFrame BulletPhysics::getFrame(const G3D::Entity *entity) {
@@ -164,7 +225,7 @@ void BulletPhysics::reconstructRigidBody(const G3D::Entity *entity) {
         btRigidBody *body = PhysicsBodyFactory::create(rigid);
         m_dynamicsWorld->addRigidBody(body);
 
-	m_dynamicBodyMap.left.replace_data(iter, body);
+        m_dynamicBodyMap.left.replace_data(iter, body);
     }
 }
 

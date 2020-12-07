@@ -1,5 +1,4 @@
 #include "bball.h"
-#include "G3D-base/FileSystem.h"
 
 int main(int argc, const char *argv[]) {
     G3D::initGLG3D();
@@ -84,7 +83,8 @@ void BallApp::onInit() {
     m_scene = PhysicsScene::create(m_ambientOcclusion);
     // Allowing custom Entity subclasses to be parsed from .Scene.Any files
     m_scene->registerEntitySubclass("PhysicsEntity", &PhysicsEntity::create);
-    m_scene->registerEntitySubclass("GhostEntity", &GhostEntity::create);
+    m_scene->registerEntitySubclass("AttractorEntity", &AttractorEntity::create);
+    m_scene->registerEntitySubclass("SpawnerEntity", &SpawnerEntity::create);
 
     setScene(m_scene);
 

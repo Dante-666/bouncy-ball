@@ -7,14 +7,14 @@ namespace G3D {
 
 template <>
 Attractor<GhostEntity>::Attractor(const Attractor<GhostEntity> &ff) {
-    m_force = ff.m_force;
+    //m_dummy = ff.m_dummy;
 }
 
 template <> Attractor<GhostEntity>::Attractor(const Any &any) {
     *this = Attractor();
     any.verifyName("Attractor");
     AnyTableReader r(any);
-    r.getIfPresent("force", m_force);
+    //r.getIfPresent("dummy1", *m_dummy);
 }
 
 template <typename E> const String Attractor<E>::getName() const {
@@ -33,9 +33,8 @@ Attractor<GhostEntity> &Attractor<GhostEntity>::operator=(const Any &a) {
 }
 
 template <> void Attractor<GhostEntity>::apply(GhostEntity *gEntity) {
-    // This is supposed to give us the objects which are in contact with the
-    // GhostEntity and some form of constraintManager should be used to
-    // add/remove constraints.
+    // This is supposed to add a positional constraint and this is purely
+    // implementation dependent.
     /*gEntity->m_physicsScene->getPhysicsEngine()->applyForceField(
         gEntity, m_force, PurePhysics::RADIAL);*/
     BehaviorChain::apply(gEntity);

@@ -13,12 +13,14 @@
 #include "ForceField.h"
 
 #include "G3D-base/G3D-base.h"
+#include "PhysicsEntity.h"
 
 /** \brief
  */
 
 namespace G3D {
 template <typename E> class Attractor : public ForceField<E> {
+    //shared_ptr<PhysicsEntity> m_dummy;
 
 public:
     Attractor() = default;

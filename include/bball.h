@@ -11,12 +11,14 @@
 #pragma once
 
 #include "G3D-app/G3D-app.h"
+#include "G3D-base/FileSystem.h"
 #include "G3D-base/G3D-base.h"
 #include "G3D-gfx/G3D-gfx.h"
 
-#include "PhysicsScene.h"
-#include "GhostEntity.h"
+#include "AttractorEntity.h"
 #include "PhysicsEntity.h"
+#include "PhysicsScene.h"
+#include "SpawnerEntity.h"
 
 #include "PSceneEditorWindow.h"
 
@@ -29,10 +31,10 @@ class BallApp : public GApp {
 
     /** This is needed for a lot of things like calculating the heading and
      * bearing information for the player and also for updating the camera
-     * follower motion
+     * follower motion TODO: make this constraint based and get the frame from
+     * physics engine
      */
-    const CFrame
-    computePlayerMotionFrame(const shared_ptr<Entity> player);
+    const CFrame computePlayerMotionFrame(const shared_ptr<Entity> player);
 
 protected:
     /** Called from onInit */
