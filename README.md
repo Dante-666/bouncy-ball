@@ -9,6 +9,7 @@ Things to take forward,
 
 !!This project is deprecated for now, I will try to push for a demo + PhysX integration with g3d codebase itself!!
 More updates later
+PhysX: [https://github.com/Dante-666/g3dPhysX]
 
 ## Ground rules
 1. Don't add .gitignore files and build files as we are developing cross-platform.
