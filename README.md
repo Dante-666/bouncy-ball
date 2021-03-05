@@ -7,8 +7,10 @@ Things to take forward,
 1. Add better support for constraints.
 2. Syncing Node to Physics and Physics to Node flags for edit support
 
-'''!!This project is deprecated for now, I will try to push for a demo + PhysX integration with g3d codebase itself!!'''
 
+!!This project is deprecated for now, I will try to push for a demo + PhysX integration with g3d codebase itself!!
+
+PhysX code changes are added and tracked in this repo
 [PhysX](https://github.com/Dante-666/g3dPhysX)
 
 ## Ground rules
